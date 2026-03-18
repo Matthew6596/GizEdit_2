@@ -1,0 +1,9 @@
+{
+    "name": "TSC - Gizmo File",
+    "ext": "giz",
+    "game": 0,
+    "type": 1,
+    "loaders": [
+        "Gizmos"
+    ]
+}
