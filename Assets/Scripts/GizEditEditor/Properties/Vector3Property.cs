@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class Vector3Property : TTProperty
 {
     public FloatProperty X, Y, Z;
+    protected Transform fieldTransform;
 
     public Vector3Property(string name, Vector3 value, string info="", UnityAction<ChangeEventData> onValueChange = null, Vector3 defaultValue = default) : base(name, defaultValue, value, onValueChange, info)
     {
@@ -34,10 +35,10 @@ public class Vector3Property : TTProperty
 
     public override void GenerateField(Transform parent)
     {
-        var field = EditorUIManager.Instance.CreateLabeledField(parent, name, generateOptions, 100);
-        X.GenerateField(field);
-        Y.GenerateField(field);
-        Z.GenerateField(field);
+        fieldTransform = EditorUIManager.Instance.CreateLabeledField(parent, name, generateOptions, 100);
+        X.GenerateField(fieldTransform);
+        Y.GenerateField(fieldTransform);
+        Z.GenerateField(fieldTransform);
     }
 
     public override void RefreshValueDisplays(object value)

@@ -7,7 +7,10 @@ public class blowupSectionLoader : GizmoSectionLoader
     public override void Load(byte[] bytes, ref int index)
     {
         if (!TryLoad(bytes, ref index, "blowup")) return;
-        base.Load(bytes, ref index);
-        _value = null;
+
+        blowupSection section = TTObjectManager.Create<blowupSection>(Name, 1);
+        RawProperty.Add(section, bytes, ref index, _value);
+
+        _value = section;
     }
 }

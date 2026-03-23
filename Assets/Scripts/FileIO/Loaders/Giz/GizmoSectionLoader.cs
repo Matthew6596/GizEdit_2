@@ -7,6 +7,8 @@ public class GizmoSectionLoader : PropertyLoader
 {
     public override string Name => "Gizmo Section";
 
+    public static string CurrentLoadingSection;
+
     public override void Load(byte[] bytes, ref int index)
     {
         index += (int)_value;
@@ -55,6 +57,7 @@ public class GizmoSectionLoader : PropertyLoader
             return false;
         }
 
+        CurrentLoadingSection = title;
         _value = BitConverter.ToInt32(bytes, index);
         index += 4;
         return true;

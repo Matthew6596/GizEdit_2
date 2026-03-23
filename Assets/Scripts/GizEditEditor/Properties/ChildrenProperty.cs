@@ -21,6 +21,11 @@ public class ChildrenProperty : TTProperty
         }
     }
 
+    public override void RefreshValueDisplays(object value)
+    {
+        foreach(var child in Value as ChildProperty[]) child.RefreshValueDisplays(child.Value);
+    }
+
     public T[] GetChildrenValues<T>() where T : TTObject
     {
         List<T> values = new();

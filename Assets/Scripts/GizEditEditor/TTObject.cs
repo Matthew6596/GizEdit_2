@@ -21,8 +21,11 @@ public abstract class TTObject : MouseInteractable
         
     }
 
+    public virtual void InitStaticProperties(){}
+
     public void GeneratePropertyPanel()
     {
+        EditorGizmoManager.DestroyAllGizmos();
         EditorUIManager.Instance.ClearPropertyPanel();
         Transform propPanel = EditorUIManager.Instance.propertyPanel.contentArea;
         foreach (var prop in properties)

@@ -15,7 +15,7 @@ public class GizmoPickupSectionLoader : GizmoSectionLoader
 
         // ### Version ###
         int version = LoadBytes<int, IntLoader>(bytes, ref index);
-        pickupSection.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int, "The version/format of the section.") { generateOptions = TTProperty.FieldGenerateOptions.Readonly|TTProperty.FieldGenerateOptions.ShowName});
+        pickupSection.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int, "The version/format of the section.") { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
 
         // ### Pickup Count ###
         int pickupCount = LoadBytes<int, IntLoader>(bytes, ref index);

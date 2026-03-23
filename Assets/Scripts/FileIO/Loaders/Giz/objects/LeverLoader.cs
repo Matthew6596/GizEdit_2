@@ -22,12 +22,13 @@ public class LeverLoader : PropertyLoader
         // ### Name ###
         string name = Encoding.UTF8.GetString(bytes, index, 16);
 
-        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(name, 2, () => { lever.GeneratePropertyPanel(); });
+        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(EditorUIManager.GetStr(name, "unnamed_lever"), 2, () => { lever.GeneratePropertyPanel(); });
 
         lever.AddProperty(new StringFixLenProperty("Name", name, 16, "", (e) => 
         {
-            //update labels?
-            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = e.value.ToString();
+            //update labels
+            string newName = e.value.ToString();
+            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = EditorUIManager.GetStr(name, "unnamed_lever");
         }));
         index += 16;
 
@@ -38,7 +39,7 @@ public class LeverLoader : PropertyLoader
         //Change to AngleProperty
         var ang = BitConverter.ToUInt16(bytes, index);
         index += 2;
-        lever.AddProperty(new FloatProperty("Angle", ang / (float)ushort.MaxValue, FloatProperty.FloatType.Float, "", (e) =>
+        lever.AddProperty(new AngleProperty("Angle", ang, lever.transform, "", (e) =>
         {
             lever.transform.rotation = Quaternion.Euler(0, e.value.Convert<float>(), 0);
         }));

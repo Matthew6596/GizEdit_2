@@ -60,6 +60,7 @@ public class TTObjectManager : MonoBehaviour
         }
         else ttobj = Instantiate(prefab).GetComponent<T>();
 
+        ttobj.InitStaticProperties();
         if(addToHierarchyIndent!=-1) EditorUIManager.Instance.AddObjectToHierarchy(objectName, addToHierarchyIndent, () => { ttobj.GeneratePropertyPanel(); });
 
         return ttobj;

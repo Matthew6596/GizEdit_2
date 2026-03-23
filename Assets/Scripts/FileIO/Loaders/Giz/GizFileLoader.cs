@@ -15,6 +15,8 @@ public class GizFileLoader : FileLoader
         if (magic == 0) return;
         index += 4;
 
+        obj.AddProperty(new IntegerProperty("magic", magic, IntegerProperty.IntType.Int, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden});
+
         obj.AddProperty(new ChildProperty("GizObstacle Section", LoadBytes<GizObstacleSection, GizObstacleSectionLoader>(bytes, ref index)) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         obj.AddProperty(new ChildProperty("GizBuildit Section", LoadBytes<GizBuilditSection, GizBuilditSectionLoader>(bytes, ref index)) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         obj.AddProperty(new ChildProperty("GizForce Section", LoadBytes<GizForceSection, GizForceSectionLoader>(bytes, ref index)) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
@@ -36,5 +38,7 @@ public class GizFileLoader : FileLoader
         /*obj.AddProperty(new ChildProperty("GizObstacle Section", LoadBytes<GizObstacleSection, GizObstacleSectionLoader>(bytes, ref index)) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         obj.AddProperty(new ChildProperty("GizObstacle Section", LoadBytes<GizObstacleSection, GizObstacleSectionLoader>(bytes, ref index)) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         obj.AddProperty(new ChildProperty("GizObstacle Section", LoadBytes<GizObstacleSection, GizObstacleSectionLoader>(bytes, ref index)) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });*/
+
+        obj.AddProperty(new IntegerProperty("End Buffer", 0, IntegerProperty.IntType.Int, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
     }
 }

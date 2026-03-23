@@ -20,11 +20,13 @@ public class TubeLoader : PropertyLoader
         // ### Name ###
         string name = Encoding.UTF8.GetString(bytes, index, 16);
 
-        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(name, 2, () => { tube.GeneratePropertyPanel(); });
+        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(EditorUIManager.GetStr(name, "unnamed_tube"), 2, () => { tube.GeneratePropertyPanel(); });
 
         tube.AddProperty(new StringFixLenProperty("Name", name, 16, "", (e) =>
         {
-            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = e.value.ToString();
+            //update labels
+            string newName = e.value.ToString();
+            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = EditorUIManager.GetStr(newName, "unnamed_tube");
         }));
         index += 16;
 
@@ -50,7 +52,7 @@ public class TubeLoader : PropertyLoader
             index++;
         }
 
-        if(version >= 3)
+        if(version >= 3) //TCS MAX VERSION IS 2
         {
             // ### Special Object ###
             //may later change this to something like "ReferenceProperty"

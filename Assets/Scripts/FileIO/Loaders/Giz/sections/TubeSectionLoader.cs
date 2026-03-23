@@ -13,7 +13,7 @@ public class TubeSectionLoader : GizmoSectionLoader
 
         // ### Version ###
         int version = LoadBytes<int, IntLoader>(bytes, ref index);
-        section.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.Readonly|TTProperty.FieldGenerateOptions.ShowName });
+        section.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
 
         // ### Tube Count ###
         int count = LoadBytes<int, IntLoader>(bytes, ref index);

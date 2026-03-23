@@ -20,10 +20,15 @@ public class ChildProperty : TTProperty
         }
     }
 
+    public override void RefreshValueDisplays(object value)
+    {
+        foreach(var prop in (Value as TTObject).properties) prop.RefreshValueDisplays(prop.Value);
+    }
+
     public override IEnumerable<byte> ToBytes()
     {
         List<byte> bytes = new();
-        foreach (var prop in Value.Convert<TTObject>().properties) bytes.AddRange(prop.ToBytes());
+        foreach (var prop in ((TTObject)Value).properties) bytes.AddRange(prop.ToBytes());
         return bytes;
     }
 }

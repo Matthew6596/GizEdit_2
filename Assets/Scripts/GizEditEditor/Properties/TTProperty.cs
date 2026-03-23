@@ -80,7 +80,7 @@ public abstract class TTProperty
     public enum FieldGenerateOptions
     {
         None = 0, NewLine=0b0001, ShowName=0b0010, Hidden=0b0100, Readonly=0b1000,
-        Default = NewLine | ShowName
+        Default = NewLine | ShowName, ReadonlyWName = Readonly | ShowName
     }
 
     public virtual IEnumerable<byte> ToBytes() { return new byte[0]; }

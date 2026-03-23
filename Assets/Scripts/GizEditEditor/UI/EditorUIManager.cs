@@ -20,7 +20,7 @@ public class EditorUIManager : MonoBehaviour
 
     [Header("UI Element Assets")]
     public Sprite inputFieldSprite;
-    public Sprite checkmarkSprite, dropArrowSprite;
+    public Sprite checkmarkSprite, dropArrowSprite, moveGizIcon, whiteSprite, whiteSpriteSliced;
     public GameObject dropdownPrefab;
 
     public Rect ViewportRect { 
@@ -133,11 +133,21 @@ public class EditorUIManager : MonoBehaviour
         }
 
         Button btn = CreateButton(content, TTProperty.FieldGenerateOptions.Default, 1000);
+        var btnEl = btn.GetComponent<ButtonElement>();
+        btnEl.colorType = EditorColorType.WindowSecondary;
         btn.GetComponent<LayoutElement>().flexibleWidth = float.MaxValue;
+
         var txt = btn.transform.GetChild(0).GetComponent<TMP_Text>();
+        var lblEl = txt.GetComponent<LabelElement>();
+        lblEl.fontType = EditorFontType.Input;
         txt.text = name;
-        txt.alignment = TextAlignmentOptions.BaselineLeft;
+        txt.alignment = TextAlignmentOptions.Left;
+        txt.margin = new(4, 0, 0, 0);
+
         btn.onClick.AddListener(() => { onSelect?.Invoke(); });
+
+        btnEl.ApplyCurrentTheme();
+        lblEl.ApplyCurrentTheme();
 
         return btn;
     }
@@ -260,13 +270,13 @@ public class EditorUIManager : MonoBehaviour
         //placehold text
         var placeholdElement = LabelElement.CreateInputPlacehold(mask.transform, "");
         inp.placeholder = placeholdElement.label;
-        placeholdElement.label.alignment = TextAlignmentOptions.MidlineLeft;
+        placeholdElement.label.alignment = TextAlignmentOptions.Left;
         StretchRectTransform(placeholdElement.GetComponent<RectTransform>());
 
         //text
         var textElement = LabelElement.CreateInput(mask.transform, "");
         inp.textComponent = textElement.label;
-        textElement.label.alignment = TextAlignmentOptions.MidlineLeft;
+        textElement.label.alignment = TextAlignmentOptions.Left;
         StretchRectTransform(textElement.GetComponent<RectTransform>());
 
         inpObj.SetActive(false); //shenanigans (selection/caret visibility)
@@ -280,9 +290,18 @@ public class EditorUIManager : MonoBehaviour
         var inp = CreateSelectableInput<Toggle>(parent, options, "Toggle");
         var inpObj = inp.gameObject;
 
+        inpObj.AddComponent<GridLayoutGroup>().cellSize = new(14,14);
+        inpObj.AddComponent<LayoutElement>().preferredWidth = 80;
+
         //programmatically create objects for input
         //set bg w/h 14, checkmark w/h 16
         var bgImg = CreateImg(inpObj.transform, inputFieldSprite, new(0, 0.5f), new(0, 0.5f), new(14, 14), "toggle_bg", EditorColorType.WindowTertiary);
+        var bgLayout = bgImg.gameObject.AddComponent<HorizontalLayoutGroup>();
+        bgLayout.childForceExpandWidth = false;
+        bgLayout.childForceExpandHeight = false;
+        bgLayout.childControlWidth = false;
+        bgLayout.childControlHeight = false;
+        bgLayout.padding = new(-1, 0, -1, 0);
 
         var checkImg = CreateImg(bgImg.transform, checkmarkSprite, new(.5f, .5f), new(.5f, .5f), new(16, 16), "toggle_check", EditorColorType.TextPrimary);
 
@@ -335,7 +354,7 @@ public class EditorUIManager : MonoBehaviour
         return inp;
     }
 
-    public Button CreateButton(Transform parent, TTProperty.FieldGenerateOptions options, int? preferredInputWidth = null)
+    public Button CreateButton(Transform parent, TTProperty.FieldGenerateOptions options, int? preferredInputWidth = null, Sprite sprite=null)
     {
         var inp = CreateSelectableInput<Button>(parent, options, "Button", preferredInputWidth);
         var inpObj = inp.gameObject;
@@ -347,7 +366,7 @@ public class EditorUIManager : MonoBehaviour
         //programmatically create objects for input
         var img = inpObj.AddComponent<Image>();
         var btnEl = inpObj.AddComponent<ButtonElement>();
-        img.sprite = inputFieldSprite;
+        img.sprite = sprite ?? inputFieldSprite;
         img.type = Image.Type.Sliced;
         inp.targetGraphic = img;
         btnEl.btn = inp;
@@ -362,13 +381,25 @@ public class EditorUIManager : MonoBehaviour
         return inp;
     }
 
+    public Button CreateIconButton(Transform parent, Sprite icon, TTProperty.FieldGenerateOptions options, int? preferredInputWidth = null)
+    {
+        Button btn = CreateButton(parent, options, preferredInputWidth, whiteSpriteSliced);
+        var layoutEl = btn.GetComponent<LayoutElement>();
+        layoutEl.minWidth = 14;
+        layoutEl.minHeight = 14;
+        var img = CreateGameObject(btn.transform, "btn_icon");
+        StretchRectTransform(img.AddComponent<RectTransform>());
+        img.AddComponent<Image>().sprite = icon;
+        return btn;
+    }
+
     public Transform CreateLabeledField(Transform parent, string lbl, TTProperty.FieldGenerateOptions options, int? lblPreferredWidth=null)
     {
         Transform contentArea = CreateContentArea(parent, LayoutMode.Horizontal);
         if (options.HasFlag(TTProperty.FieldGenerateOptions.ShowName))
         {
             var lblEl = LabelElement.CreateLabel(contentArea, lbl);
-            lblEl.label.alignment = TextAlignmentOptions.MidlineLeft;
+            lblEl.label.alignment = TextAlignmentOptions.Left;
             if(lblPreferredWidth.HasValue) lblEl.gameObject.AddComponent<LayoutElement>().preferredWidth = lblPreferredWidth.Value;
         }
         return contentArea;
@@ -390,6 +421,8 @@ public class EditorUIManager : MonoBehaviour
     {
         FindFirstObjectByType<CameraController>().RefreshViewportRect();
     }
+
+    public static string GetStr(string str, string strIfNull) => str.Length == 0 || str[0] == 0 || string.IsNullOrWhiteSpace(str) ? strIfNull : str;
 }
 
 public enum CursorType { Normal, Click, Help, Unavailable, Drag_EW, Drag_NS, Drag_NESW, Drag_NWSE, Move, Pen, Person, Pin }
@@ -504,16 +537,14 @@ public struct EditorTheme
         Theme.Col<ImageElement>(EditorColorType.ErrRed, 200, 0, 0)
     );
 
-    private readonly static Theme DefaultDark = new(new (EditorFontType, int)[]
-    {
-        new(EditorFontType.Header,16), new(EditorFontType.Primary, 12), new(EditorFontType.Tip, 10),
-        new(EditorFontType.Label, 12), new(EditorFontType.Input, 12), new(EditorFontType.Special, 12),
-    },
+    private readonly static Theme DefaultDark = new(DefaultFontSizes,
         Theme.Col<ImageElement>(EditorColorType.WindowPrimary, 48, 48, 48),
         Theme.Col<ImageElement>(EditorColorType.WindowSecondary, 56, 56, 56),
         Theme.Col<ImageElement>(EditorColorType.WindowTertiary, 64, 64, 64),
         Theme.Col<ImageElement>(EditorColorType.Title, 80, 80, 80),
         Theme.Col<ButtonElement>(EditorColorType.WindowPrimary, 128, 128, 128),
+        Theme.Col<ButtonElement>(EditorColorType.WindowSecondary, 96, 96, 96),
+        Theme.Col<ButtonElement>(EditorColorType.WindowTertiary, 72, 72, 72),
         Theme.Col<LabelElement>(EditorColorType.Title, 240, 240, 240),
         Theme.Col<LabelElement>(EditorColorType.TextPrimary, 232, 232, 232),
         Theme.Col<LabelElement>(EditorColorType.TextSecondary, 200, 200, 200),

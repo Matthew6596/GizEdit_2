@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class ZipUpSectionLoader : GizmoSectionLoader
@@ -7,7 +8,10 @@ public class ZipUpSectionLoader : GizmoSectionLoader
     public override void Load(byte[] bytes, ref int index)
     {
         if (!TryLoad(bytes, ref index, "ZipUp")) return;
-        base.Load(bytes, ref index);
-        _value = null;
+
+        ZipUpSection section = TTObjectManager.Create<ZipUpSection>(Name, 1);
+        RawProperty.Add(section, bytes, ref index, _value);
+
+        _value = section;
     }
 }

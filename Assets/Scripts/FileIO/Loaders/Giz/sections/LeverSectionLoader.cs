@@ -13,7 +13,7 @@ public class LeverSectionLoader : GizmoSectionLoader
 
         // ### Version ###
         int version = LoadBytes<int, IntLoader>(bytes, ref index);
-        section.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.Readonly | TTProperty.FieldGenerateOptions.ShowName });
+        section.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
 
         // ### Lever Count ###
         int count = LoadBytes<int, IntLoader>(bytes, ref index);

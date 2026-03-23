@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class ButtonElement : EditorUIElement
+public class ButtonElement : EditorUIElement, IScrollHandler
 {
     public Button btn;
     public EditorColorType colorType;
@@ -42,5 +42,20 @@ public class ButtonElement : EditorUIElement
         var btnTxt = btn.transform.GetChild(0).GetComponent<TMP_Text>();
         btnTxt.color = EditorTheme.GetColor<LabelElement>(EditorTheme.ConvertWindowToTextColor(colorType), btnTxt.color);
         btnTxt.fontSize = EditorTheme.GetFontSize(EditorFontType.Label);
+    }
+
+    public void OnScroll(PointerEventData eventData)
+    {
+        Transform parent = transform;
+        while(parent != null)
+        {
+            if(parent.TryGetComponent<ScrollRect>(out var scroll))
+            {
+                scroll.OnScroll(eventData);
+                return;
+            }
+            parent = parent.parent;
+        }
+        
     }
 }

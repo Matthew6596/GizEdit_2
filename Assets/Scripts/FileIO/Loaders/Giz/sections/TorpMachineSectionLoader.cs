@@ -7,7 +7,10 @@ public class TorpMachineSectionLoader : GizmoSectionLoader
     public override void Load(byte[] bytes, ref int index)
     {
         if (!TryLoad(bytes, ref index, "Torp Machine")) return;
-        base.Load(bytes, ref index);
-        _value = null;
+
+        TorpMachineSection section = TTObjectManager.Create<TorpMachineSection>(Name, 1);
+        RawProperty.Add(section, bytes, ref index, _value);
+
+        _value = section;
     }
 }

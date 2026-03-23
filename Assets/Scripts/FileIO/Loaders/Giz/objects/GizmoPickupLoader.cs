@@ -21,12 +21,13 @@ public class GizmoPickupLoader : PropertyLoader
         // ### Name ###
         string name = Encoding.UTF8.GetString(bytes, index, 8);
 
-        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(string.IsNullOrEmpty(name) ? "pickup" : name, 2, () => { pickup.GeneratePropertyPanel(); });
+        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(EditorUIManager.GetStr(name,"unnamed_pickup"), 2, () => { pickup.GeneratePropertyPanel(); });
 
         pickup.AddProperty(new StringFixLenProperty("Name", name, 8, "This is the name of the pickup, which can be used to reference this pickup in the .git file.", (e) =>
         {
-            //update labels?
-            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = e.value.ToString();
+            //update labels
+            string newName = e.value.ToString();
+            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = EditorUIManager.GetStr(newName, "unnamed_pickup");
         }));
         index += 8;
 
