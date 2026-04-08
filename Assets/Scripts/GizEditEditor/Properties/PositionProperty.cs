@@ -7,7 +7,7 @@ public class PositionProperty : Vector3Property
     public Transform target;
     private PositionGizmo posGiz;
 
-    public bool isLowPriorityPosGiz = false;
+    public bool isSecondaryPosGiz = false;
     public PositionProperty primaryPosProperty = null;
     private bool lowPriorityGizActive = false;
 
@@ -21,7 +21,7 @@ public class PositionProperty : Vector3Property
         //generate vector3 field in property panel
         base.GenerateField(parent);
 
-        if (isLowPriorityPosGiz)
+        if (isSecondaryPosGiz)
         {
             lowPriorityGizActive = false;
             //create button to show position gizmo
@@ -41,7 +41,11 @@ public class PositionProperty : Vector3Property
 
     public void CreatePositionGizmo()
     {
-        posGiz = EditorGizmoManager.Create<PositionGizmo>(Value, (e) => { Value = (Vector3)e; });
+        Vector3 pos = target.parent == null ? (Vector3)Value : target.parent.TransformPoint((Vector3)Value);
+        posGiz = EditorGizmoManager.Create<PositionGizmo>(pos, (e) => 
+        {
+            Value = target.parent == null ? (Vector3)e : target.parent.InverseTransformPoint((Vector3)e);
+        });
         posGiz.transform.SetParent(target);
         posGiz.transform.localPosition = Vector3.zero;
     }

@@ -21,10 +21,7 @@ public class GizSpecialObjectLoader : PropertyLoader
 
         // ### Name ###
         string name = LoadBytes<string,String8Loader>(bytes, ref index);
-        specialObj.AddProperty(new StringProperty("Name", name, StringProperty.MaxSize.Byte, "", (e) =>
-        {
-            //Update labels?
-        }));
+        specialObj.AddProperty(new StringProperty("Name", name, StringProperty.MaxSize.Byte, ""));
 
         // ### Unknown 1 ###
         specialObj.AddProperty(new FloatProperty("Unknown 1", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float));
@@ -32,11 +29,13 @@ public class GizSpecialObjectLoader : PropertyLoader
         // ### Animation Time ###
         specialObj.AddProperty(new FloatProperty("Animation Time", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "The amount of time it takes for the special object's animation/movement to complete."));
 
-        
-        if (version >= 2)
+        // ### Unknown 2 ###
+        int unk2 = 0;
+        if (version >= 2) unk2 = LoadBytes<int, IntLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 2))
         {
-            // ### Unknown 2 ###
-            specialObj.AddProperty(new IntegerProperty("Unknown 2", LoadBytes<int, IntLoader>(bytes, ref index), IntegerProperty.IntType.Int));
+            // ## Unknown 2 ##
+            specialObj.AddProperty(new IntegerProperty("Unknown 2", unk2, IntegerProperty.IntType.Int));
         }
 
         // ### Additional Loading ###

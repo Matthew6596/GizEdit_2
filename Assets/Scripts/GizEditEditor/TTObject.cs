@@ -59,6 +59,42 @@ public abstract class TTObject : MouseInteractable
         }
     }
 
+    public void InsertProperties(TTProperty[] props, int index)
+    {
+        if(properties == null)
+        {
+            properties = new TTProperty[props.Length];
+            Array.Copy(props, properties, props.Length);
+        }
+        else
+        {
+            List<TTProperty> l = properties.ToList();
+            l.InsertRange(index, props);
+            properties = l.ToArray();
+        }
+    }
+
+    public void RemoveProperties(int index, int count)
+    {
+        if (properties == null) return;
+        
+        List<TTProperty> l = properties.ToList();
+        l.RemoveRange(index, count);
+        properties = l.ToArray();
+    }
+
+    public void PrependProperty(TTProperty prop)
+    {
+        if (properties == null) properties = new TTProperty[] { prop };
+        else properties = properties.Prepend(prop).ToArray();
+    }
+
+    public TTProperty FindProperty(string name)
+    {
+        if (properties == null) return null;
+        return properties.Where((p) => p.name == name).FirstOrDefault();
+    }
+
     public T FindProperty<T>(string name) where T : TTProperty
     {
         if(properties == null) return null;
@@ -70,6 +106,13 @@ public abstract class TTObject : MouseInteractable
         TTProperty p = FindProperty<TTProperty>(name);
         if(p == null) return default;
         return (T)Convert.ChangeType(p.Value, typeof(T));
+    }
+
+    public int FindPropertyIndex(string name) => properties==null ? -1 : properties.Select((p, i) => (p, i)).First((e) => e.p.name == name).i;
+
+    public void ResetToDefault()
+    {
+        foreach (var prop in properties) prop.ResetToDefault();
     }
 
     public override void OnLeftClick()

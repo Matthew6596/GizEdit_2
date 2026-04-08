@@ -2,15 +2,9 @@ using UnityEngine;
 
 public class Spinner : TTObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    
+    public void UpdateFlaps(int flapCount)
     {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

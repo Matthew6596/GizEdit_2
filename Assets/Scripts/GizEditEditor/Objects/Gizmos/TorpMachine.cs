@@ -13,4 +13,14 @@ public class TorpMachine : TTObject
     {
         
     }
+
+    public void RefreshScale()
+    {
+
+    }
+
+    public void SetOutlineColor(bool isRed)
+    {
+
+    }
 }

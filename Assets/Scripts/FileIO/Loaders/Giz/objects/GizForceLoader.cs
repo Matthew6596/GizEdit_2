@@ -21,46 +21,53 @@ public class GizForceLoader : PropertyLoader
 
         // ### Name ###
         string name = Encoding.UTF8.GetString(bytes, index, 16);
-
-        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(EditorUIManager.GetStr(name, "unnamed_gizforce"), 2, () => { force.GeneratePropertyPanel(); });
-
-        force.AddProperty(new StringFixLenProperty("Name", name, 16, "", (e) =>
-        {
-            //update labels
-            string newName = e.value.ToString();
-            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = EditorUIManager.GetStr(name, "unnamed_gizforce");
-        }));
+        force.AddProperty(new StringFixLenProperty("Name", name, 16, ""));
         index += 16;
 
         // ### Position ###
         PositionProperty posProp = new("Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), force.transform, "");
         force.AddProperty(posProp);
 
-        if (version == 1)
+        // ### Unknown 1 ###
+        Vector3 unk1 = Vector3.zero;
+        if (version == 1) unk1 = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v == 1))
         {
-            // ### Unknown 1 ###
-            force.AddProperty(new Vector3Property("Unknown 1", LoadBytes<Vector3, Vector3Loader>(bytes, ref index)));
+            // ## Unknown 1 ##
+            force.AddProperty(new Vector3Property("Unknown 1", unk1));
         }
 
         // ### Reset Time ###
         force.AddProperty(new FloatProperty("Reset Time", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "The amount of time for the GizForce to reset."));
 
-        if (version >= 8)
+        // ### Shake Time ###
+        float shakeTime = 0;
+        if (version >= 8) shakeTime = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 8))
         {
-            // ### Shake Time ###
-            force.AddProperty(new FloatProperty("Shake Time", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "How long the GizForce will shake for before activating."));
+            // ## Shake Time ##
+            force.AddProperty(new FloatProperty("Shake Time", shakeTime, FloatProperty.FloatType.Float, "How long the GizForce will shake for before activating."));
         }
 
         // ### Range ###
         force.AddProperty(new FloatProperty("Range", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
 
+        // ### Unknown 2 ###
+        // ### Unknown 3 ###
+        Vector3 unk2 = Vector3.zero;
+        short unk3 = 0;
         if (version == 1)
         {
-            // ### Unknown 2 ###
-            force.AddProperty(new Vector3Property("Unknown 2", LoadBytes<Vector3, Vector3Loader>(bytes, ref index)));
+            unk2 = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
+            unk3 = LoadBytes<short, ShortLoader>(bytes, ref index);
+        }
+        if (ShouldAddProperty(version, v => v == 1))
+        {
+            // ## Unknown 2 ##
+            force.AddProperty(new Vector3Property("Unknown 2", unk2));
 
-            // ### Unknown 3 ###
-            force.AddProperty(new IntegerProperty("Unknown 3", LoadBytes<short,ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short));
+            // ## Unknown 3 ##
+            force.AddProperty(new IntegerProperty("Unknown 3", unk3, IntegerProperty.IntType.Short));
         }
 
         // ### Interaction Options? ###
@@ -70,42 +77,63 @@ public class GizForceLoader : PropertyLoader
         force.AddProperty(new BoolProperty("Togglable", bytes[index] != 0, "..."));
         index++;
 
+        // ### Unknown 4 ###
+        byte unk4 = 0;
         if (version >= 11)
         {
-            // ### Unknown 4 ###
-            force.AddProperty(new IntegerProperty("Unknown 4", bytes[index], IntegerProperty.IntType.Byte, "..."));
+            unk4 = bytes[index];
             index++;
+        }
+        if (ShouldAddProperty(version, v => v >= 11))
+        {
+            // ## Unknown 4 ##
+            force.AddProperty(new IntegerProperty("Unknown 4", unk4, IntegerProperty.IntType.Byte, "..."));
         }
 
         // ### Unknown 5 ###
         force.AddProperty(new IntegerProperty("Unknown 5", bytes[index], IntegerProperty.IntType.Byte, "..."));
         index++;
 
+        // ### Unknown 6 ###
+        byte unk6 = 0;
         if (version == 1)
         {
-            // ### Unknown 6 ###
-            force.AddProperty(new IntegerProperty("Unknown 6", bytes[index], IntegerProperty.IntType.Byte, "..."));
+            unk6 = bytes[index];
             index++;
         }
+        if (ShouldAddProperty(version, v => v == 1))
+        {
+            // ## Unknown 6 ##
+            force.AddProperty(new IntegerProperty("Unknown 6", unk6, IntegerProperty.IntType.Byte, "..."));
+        }
 
+        if (TTLoader.LogEnabled) Debug.Log($"Loading GizForce special objects at {index}");
         // ### Special Objects ###
         GizSpecialObjectsLoader objsLoader = new((o,ind) =>
         {
+            // ### Unknown 7 ###
+            short unk7 = 0;
             if (version >= 9)
             {
-                // ### Unknown 7 ###
-                o.AddProperty(new IntegerProperty("Unknown 7", BitConverter.ToInt16(bytes, ind), IntegerProperty.IntType.Short));
-                return ind + 2;
+                unk7 = BitConverter.ToInt16(bytes, ind);
+                ind += 2;
+            }
+            if (ShouldAddProperty(version, v => v >= 9))
+            {
+                // ## Unknown 7 ##
+                o.AddProperty(new IntegerProperty("Unknown 7", unk7, IntegerProperty.IntType.Short));
             }
             return ind;
         });
         objsLoader.Load(bytes, ref index);
         var specialObjects = objsLoader.GetValue<GizSpecialObjects>();
-        force.AddProperty(new ChildProperty("Special Objects", specialObjects, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        force.AddProperty(new ChildProperty("Special Objects", specialObjects, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # Special Objects Editor Nav Buttons #
-        //EditorUIManager.Instance.AddObjectToHierarchy("Special Objects", 3, () => { specialObjects.GeneratePropertyPanel(); });
-        force.AddProperty(new NavBtnProperty("Special Objects", () => { specialObjects.GeneratePropertyPanel(); }));
+        specialObjects.PrependProperty(new NavBtnProperty($"<-- Back to GizForce", () => { force.GeneratePropertyPanel(); }));
+        force.AddProperty(new NavBtnProperty("Special Objects -->", () => { specialObjects.GeneratePropertyPanel(); }));
+
+        if (TTLoader.LogEnabled) Debug.Log($"Finished loading GizForce special objects at {index}");
 
         // ### Force Speed ###
         force.AddProperty(new FloatProperty("Force Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
@@ -113,70 +141,111 @@ public class GizForceLoader : PropertyLoader
         // ### Reset Speed ###
         force.AddProperty(new FloatProperty("Reset Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
 
-        if (version >= 6)
+        // ### Auto Force? ###
+        float autoForce = 0;
+        if (version >= 6) autoForce = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 6))
         {
-            // ### Auto Force? ###
-            force.AddProperty(new FloatProperty("Auto Force (?)", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+            // ## Auto Force? ##
+            force.AddProperty(new FloatProperty("Auto Force (?)", autoForce, FloatProperty.FloatType.Float, "..."));
         }
 
-        if (version >= 7)
+        // ### Effect Scale ###
+        float effectScale = 0;
+        if (version >= 7) effectScale = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 7))
         {
-            // ### Effect Scale ###
-            force.AddProperty(new FloatProperty("Effect Scale", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "The scale of the force effect/aura."));
+            // ## Effect Scale ##
+            force.AddProperty(new FloatProperty("Effect Scale", effectScale, FloatProperty.FloatType.Float, "The scale of the force effect/aura."));
         }
 
-        if (version >= 3)
+        // ### Unknown 8 ###
+        float unk8 = 0;
+        if (version >= 3) unk8 = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 3))
         {
-            // ### Unknown 8 ###
-            force.AddProperty(new FloatProperty("Unknown 8", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "Related to animation?"));
+            // ## Unknown 8 ##
+            force.AddProperty(new FloatProperty("Unknown 8", unk8, FloatProperty.FloatType.Float, "Related to animation?"));
         }
 
-        if (version == 4)
+        // ### Unknown 9 ###
+        short unk9 = 0;
+        if (version == 4) unk9 = LoadBytes<short, ShortLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v == 4))
         {
-            // ### Unknown 9 ###
-            force.AddProperty(new IntegerProperty("Unknown 9", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+            // ## Unknown 9 ##
+            force.AddProperty(new IntegerProperty("Unknown 9", unk9, IntegerProperty.IntType.Short, "..."));
         }
 
-        if (version >= 5)
+        // ### Linked blowup ###
+        string blowup = "";
+        if (version >= 5) blowup = LoadBytes<string, String8Loader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 5))
         {
-            // ### Linked blowup ###
-            force.AddProperty(new StringProperty("Blowup", LoadBytes<string,String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "The blowup linked to this GizForce."));
+            // ## Linked blowup ##
+            force.AddProperty(new StringProperty("Blowup", blowup, StringProperty.MaxSize.Byte, "The blowup linked to this GizForce."));
         }
 
+        // ### Minimum Studs Value ###
+        // ### Maximum Studs Value ###
+        // ### Studs Angle ###
+        // ### Studs Position ###
+        ushort minStuds = 0, maxStuds = 0, studAng = 0;
+        Vector3 studPos = Vector3.zero;
         if (version >= 4)
         {
-            // ### Minimum Studs Value ###
-            force.AddProperty(new IntegerProperty("Minimum Studs Value", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
+            minStuds = (ushort)LoadBytes<short, ShortLoader>(bytes, ref index);
+            maxStuds = (ushort)LoadBytes<short, ShortLoader>(bytes, ref index);
+            studAng = (ushort)LoadBytes<short, ShortLoader>(bytes, ref index);
+            studPos = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
+        }
+        if (ShouldAddProperty(version, v => v >= 4))
+        {
+            // ## Minimum Studs Value ##
+            force.AddProperty(new IntegerProperty("Minimum Studs Value", minStuds, IntegerProperty.IntType.UShort, "..."));
 
-            // ### Maximum Studs Value ###
-            force.AddProperty(new IntegerProperty("Maximum Studs Value", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
+            // ## Maximum Studs Value ##
+            force.AddProperty(new IntegerProperty("Maximum Studs Value", maxStuds, IntegerProperty.IntType.UShort, "..."));
 
-            // ### Studs Angle ###
+            // ## Studs Angle ##
             GameObject studsSpawnObjTEMP = new("studs_spawn_obj_TEMP");
             studsSpawnObjTEMP.transform.SetParent(force.transform);
             studsSpawnObjTEMP.transform.localPosition = Vector3.zero;
-            force.AddProperty(new AngleProperty("Studs Angle", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), studsSpawnObjTEMP.transform, "The angle at which the studs emit."));
+            force.AddProperty(new AngleProperty("Studs Angle", studAng, studsSpawnObjTEMP.transform, "The angle at which studs emit."));
 
-            // ### Studs Position ###
-            force.AddProperty(new PositionProperty("Studs Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), studsSpawnObjTEMP.transform, "The relative position at which the studs emit.") { isLowPriorityPosGiz = true, primaryPosProperty = posProp });
+            // ## Studs Position ##
+            force.AddProperty(new PositionProperty("Studs Position", studPos, studsSpawnObjTEMP.transform, "The relative position at which studs emit.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
         }
 
-        if (version >= 10)
+        // ### Studs Speed ###
+        float studSpd = 1.5f;
+        if (version >= 10) studSpd = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 10))
         {
-            // ### Studs Speed ###
-            force.AddProperty(new FloatProperty("Studs Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "The speed of the studs as they emit."));
+            // ## Studs Speed ##
+            force.AddProperty(new FloatProperty("Studs Speed", studSpd, FloatProperty.FloatType.Float, "The speed of the studs as they emit.", (e) => { }, 1.5f));
         }
 
-        if(version >= 15)
+        // ### Process Sound ###
+        // ### Complete Sound ###
+        // ### Reset Sound ###
+        string procSfx = "", doneSfx = "", resetSfx = "";
+        if (version >= 15)
         {
-            // ### Process Sound ###
-            force.AddProperty(new StringProperty("Process Sound", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "The sound played as the force is being activated/forced."));
+            procSfx = LoadBytes<string, String8Loader>(bytes, ref index);
+            doneSfx = LoadBytes<string, String8Loader>(bytes, ref index);
+            resetSfx = LoadBytes<string, String8Loader>(bytes, ref index);
+        }
+        if (ShouldAddProperty(version, v => v >= 15))
+        {
+            // ## Process Sound ##
+            force.AddProperty(new StringProperty("Process Sound", procSfx, StringProperty.MaxSize.Byte, "The sound played as the force is being activated/forced."));
 
-            // ### Complete Sound ###
-            force.AddProperty(new StringProperty("Complete Sound", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "The sound played when the force is completed/activated."));
+            // ## Complete Sound ##
+            force.AddProperty(new StringProperty("Complete Sound", doneSfx, StringProperty.MaxSize.Byte, "The sound played when the force is completed/activated."));
 
-            // ### Reset Sound ###
-            force.AddProperty(new StringProperty("Reset Sound", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "The sound played as the force is resetting."));
+            // ## Reset Sound ##
+            force.AddProperty(new StringProperty("Reset Sound", resetSfx, StringProperty.MaxSize.Byte, "The sound played as the force is resetting."));
         }
 
         _value = force;

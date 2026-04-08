@@ -21,70 +21,89 @@ public class LeverLoader : PropertyLoader
 
         // ### Name ###
         string name = Encoding.UTF8.GetString(bytes, index, 16);
-
-        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(EditorUIManager.GetStr(name, "unnamed_lever"), 2, () => { lever.GeneratePropertyPanel(); });
-
-        lever.AddProperty(new StringFixLenProperty("Name", name, 16, "", (e) => 
-        {
-            //update labels
-            string newName = e.value.ToString();
-            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = EditorUIManager.GetStr(name, "unnamed_lever");
-        }));
+        lever.AddProperty(new StringFixLenProperty("Name", name, 16, ""));
         index += 16;
 
         // ### Position ###
-        lever.AddProperty(new PositionProperty("Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), lever.transform, ""));
+        PositionProperty posProp = new("Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), lever.transform, "");
+        lever.AddProperty(posProp);
 
         // ### Angle ###
-        //Change to AngleProperty
         var ang = BitConverter.ToUInt16(bytes, index);
         index += 2;
-        lever.AddProperty(new AngleProperty("Angle", ang, lever.transform, "", (e) =>
-        {
-            lever.transform.rotation = Quaternion.Euler(0, e.value.Convert<float>(), 0);
-        }));
+        lever.AddProperty(new AngleProperty("Angle", ang, lever.transform, ""));
 
         // ### (Handle Studs) Color ###
-        lever.AddProperty(new EnumProperty("Color", bytes[index], Lever.StudColors, "The color of the lever handles.", (e) =>
+        lever.AddProperty(new EnumProperty("Handle Color", bytes[index], Lever.StudColors, "The color of the lever handles.", (e) =>
         {
-            //update lever material?
-        }));
+            lever.UpdateHandleColor((int)e.value);
+        }, 3));
         index++;
 
-        if(version >= 2)
+        // ### Multiple Pulls ###
+        bool multiPulls = false;
+        if (version >= 2)
         {
-            // ### Multiple Pulls ###
-            lever.AddProperty(new BoolProperty("Multiple Pulls", bytes[index] == 1, "Whether the lever can be pulled multiple times or only once."));
+            multiPulls = bytes[index] != 0;
             index++;
         }
-
-        if (version >= 3)
+        if (ShouldAddProperty(version, v => v >= 2))
         {
-            // ### Pull Time ###
-            lever.AddProperty(new FloatProperty("Pull Time", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+            // ## Multiple Pulls ##
+            lever.AddProperty(new BoolProperty("Multiple Pulls", multiPulls, "Whether the lever can be pulled multiple times or stays down when pulled once."));
         }
 
+        // ### Pull Time ###
+        float pullTime = 1.5f;
+        if (version >= 3) pullTime = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 3))
+        {
+            // ## Pull Time ##
+            lever.AddProperty(new FloatProperty("Pull Time", pullTime, FloatProperty.FloatType.Float, "..."));
+        }
+
+        // ### Invisible ###
+        bool invis = false;
         if (version >= 4)
         {
-            // ### Invisible ###
-            lever.AddProperty(new BoolProperty("Invisible", bytes[index] == 1, "Whether the lever model is invisible."));
+            invis = bytes[index] != 0;
             index++;
         }
+        if (ShouldAddProperty(version, v => v >= 4))
+        {
+            // ## Invisible ##
+            lever.AddProperty(new BoolProperty("Invisible", invis, "Whether the base of the lever is invisible."));
+        }
 
+        // ### Target Position ###
+        // ### Target Size ###
+        Vector3 targPos = Vector3.zero;
+        float targSize = 1f;
         if (version >= 5)
         {
-            // ### Target Position ###
-            lever.AddProperty(new PositionProperty("Target Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), lever.ActivationTarget.transform, "Position of the red activation target relative to the lever."));
+            targPos = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
+            targSize = LoadBytes<float, FloatLoader>(bytes, ref index);
+        }
+        if (ShouldAddProperty(version, v => v >= 5))
+        {
+            // ## Target Position ##
+            lever.AddProperty(new PositionProperty("Target Position", targPos, lever.ActivationTarget.transform, "Position of the red activation target relative to the lever.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
 
-            // ### Target Size ###
-            lever.AddProperty(new FloatProperty("Target Size", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "The scale of the red activation target."));
+            // ## Target Size ##
+            lever.AddProperty(new FloatProperty("Target Size", targSize, FloatProperty.FloatType.Float, "The scale of the red activation target."));
         }
 
+        // ### Target Invisible ###
+        bool targInvis = false;
         if (version >= 6)
         {
-            // ### Target Invisible ###
-            lever.AddProperty(new BoolProperty("Target Invisible", bytes[index] == 1, "Whether the red activation target is invisible."));
+            targInvis = bytes[index] != 0;
             index++;
+        }
+        if (ShouldAddProperty(version, v => v >= 6))
+        {
+            // ## Target Invisible ##
+            lever.AddProperty(new BoolProperty("Target Invisible", targInvis, "Whether the red activation target is invisible."));
         }
 
         _value = lever;

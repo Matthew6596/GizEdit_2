@@ -8,21 +8,37 @@ public class GizForceSectionLoader : GizmoSectionLoader
     {
         if (!TryLoad(bytes, ref index, "GizForce")) return;
 
-        GizForceSection section = TTObjectManager.Create<GizForceSection>(Name, 1);
+        GizForceSection section = TTObjectManager.Create<GizForceSection>(Name);
 
         // ### Version ###
         byte version = bytes[index];
         index++;
 
-        section.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Byte) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
+        section.AddProperty(new IntegerProperty("Version", GetTargetVersion(version), IntegerProperty.IntType.Byte) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
 
         // ### Force Count ###
         short count = LoadBytes<short,ShortLoader>(bytes, ref index);
-        section.AddProperty(new IntegerProperty("Force Count", count, IntegerProperty.IntType.Short) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        IntegerProperty countProp = new("Force Count", count, IntegerProperty.IntType.Short) { generateOptions = TTProperty.FieldGenerateOptions.Hidden };
+        section.AddProperty(countProp);
 
         // ### Forces ###
-        var children = ChildrenProperty.LoadChildArray<GizForce>(new GizForceLoader(version), bytes, ref index, count, "GizForce");
-        section.AddProperty(new ChildrenProperty("GizForces", children) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        byte[] defaultBytes = new byte[124];
+        int specVersInd = 42;
+        if (version == 1) specVersInd += 27;
+        if (version >= 8) specVersInd += 4;
+        if (version >= 11) specVersInd += 1;
+        defaultBytes[specVersInd] = 3;
+        var childrenProp = ChildrenProperty.Create<GizForce>("Forces", "", "Force", new GizForceLoader(version), defaultBytes, bytes, ref index, count, (e) =>
+        {
+            countProp.Value = (e.value as ChildProperty[]).Length;
+        }, TTProperty.FieldGenerateOptions.HiddenWName);
+        section.AddProperty(childrenProp);
+
+        // # Force Menu Options #
+        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Force", () =>
+        {
+            (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
+        });
 
         _value = section;
     }

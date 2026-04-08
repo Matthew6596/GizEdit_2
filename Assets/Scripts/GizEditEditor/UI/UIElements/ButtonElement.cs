@@ -10,17 +10,28 @@ public class ButtonElement : EditorUIElement, IScrollHandler
 
     private void Awake()
     {
-        //On Hover
-        AddEventTrigger((e) =>
+        void Hover()
         {
             CursorSet.SetCursor(CursorType.Click);
-        }, EventTriggerType.PointerEnter);
+        }
 
-        //On Exit
-        AddEventTrigger((e) =>
+        void UnHover()
         {
             CursorSet.SetCursor(CursorType.Normal);
-        }, EventTriggerType.PointerExit);
+        }
+
+        void Click()
+        {
+
+        }
+
+        //On Hover
+        AddEventTrigger((e) => { Hover(); }, EventTriggerType.PointerEnter);
+
+        //On Exit
+        AddEventTrigger((e) => { UnHover(); }, EventTriggerType.PointerExit);
+
+        AddEventTrigger((e) => { Click(); UnHover(); }, EventTriggerType.PointerClick);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

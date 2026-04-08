@@ -9,19 +9,29 @@ public class LeverSectionLoader : GizmoSectionLoader
     {
         if (!TryLoad(bytes, ref index, "Lever")) return;
 
-        var section = TTObjectManager.Create<LeverSection>(Name, 1);
+        var section = TTObjectManager.Create<LeverSection>(Name);
 
         // ### Version ###
         int version = LoadBytes<int, IntLoader>(bytes, ref index);
-        section.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
+        section.AddProperty(new IntegerProperty("Version", GetTargetVersion(version), IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
 
         // ### Lever Count ###
         int count = LoadBytes<int, IntLoader>(bytes, ref index);
-        section.AddProperty(new IntegerProperty("Lever Count", count, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        IntegerProperty countProp = new("Lever Count", count, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.Hidden };
+        section.AddProperty(countProp);
 
         // ### Levers ###
-        var levers = ChildrenProperty.LoadChildArray<Lever>(new LeverLoader(version), bytes, ref index, count, "Lever");
-        section.AddProperty(new ChildrenProperty("Levers", levers) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        var childrenProp = ChildrenProperty.Create<Lever>("Levers", "", "Lever", new LeverLoader(version), new byte[54], bytes, ref index, count, (e) =>
+        {
+            countProp.Value = (e.value as ChildProperty[]).Length;
+        }, TTProperty.FieldGenerateOptions.HiddenWName);
+        section.AddProperty(childrenProp);
+
+        // # Lever Menu Options #
+        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Lever", () =>
+        {
+            (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
+        });
 
         _value = section;
     }

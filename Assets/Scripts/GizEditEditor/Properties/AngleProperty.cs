@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using static UnityEngine.GraphicsBuffer;
 
 public class AngleProperty : TTProperty
 {
@@ -31,6 +30,7 @@ public class AngleProperty : TTProperty
     public override void RefreshValueDisplays(object value)
     {
         floatField.RefreshValueDisplays(value);
+        target.rotation = Quaternion.Euler(0, value.Convert<float>(), 0);
     }
 
     public override IEnumerable<byte> ToBytes()

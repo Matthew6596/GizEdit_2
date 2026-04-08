@@ -13,6 +13,14 @@ public class TTLoader : MonoBehaviour
     /// If true, updates objects to their newest verison upon loading.
     /// </summary>
     public static bool AutoVersionUpdate { get => Settings.Get("auto_version_update") == "true"; }
+    public static Dictionary<string, int> TargetVersions { get; } = new();
+    public static bool HasVersionTarget(string name, out int targetVersion) => TargetVersions.TryGetValue(name, out targetVersion);
+    public static bool ShouldAddProperty(string name, int version, Func<int,bool> versionComparison)
+    {
+        bool hasTargVers = HasVersionTarget(name, out int targVers);
+        return ((!hasTargVers && versionComparison(version)) || (hasTargVers && versionComparison(targVers)));
+    }
+    public static bool LogEnabled { get; set; }
     public static string CurrentLoadingFilePath { get; private set; }
     public static FileDataType CurrentLoadingFileType { get; private set; }
 

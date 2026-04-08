@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,7 +22,7 @@ public class EditorUIManager : MonoBehaviour
 
     [Header("UI Element Assets")]
     public Sprite inputFieldSprite;
-    public Sprite checkmarkSprite, dropArrowSprite, moveGizIcon, whiteSprite, whiteSpriteSliced;
+    public Sprite checkmarkSprite, dropArrowSprite, moveGizIcon, whiteSprite, whiteSpriteSliced, trashIcon, plusIcon;
     public GameObject dropdownPrefab;
 
     public Rect ViewportRect { 
@@ -40,6 +42,7 @@ public class EditorUIManager : MonoBehaviour
     }
 
     private Camera cam;
+    private readonly List<HierarchyRoot> hierarchyRoots = new();
 
     private void Awake()
     {
@@ -121,7 +124,7 @@ public class EditorUIManager : MonoBehaviour
         return obj.AddComponent<T>();
     }
 
-    public Button AddObjectToHierarchy(string name, int indent=0, Action onSelect=null)
+    public Button AddObjectToHierarchy(string name, int indent=0, Action onSelect=null, bool collapsible=false, HierarchySection section=null)
     {
         Transform content = CreateContentArea(hierarchyPanel.contentArea, LayoutMode.Horizontal);
 
@@ -133,8 +136,6 @@ public class EditorUIManager : MonoBehaviour
         }
 
         Button btn = CreateButton(content, TTProperty.FieldGenerateOptions.Default, 1000);
-        var btnEl = btn.GetComponent<ButtonElement>();
-        btnEl.colorType = EditorColorType.WindowSecondary;
         btn.GetComponent<LayoutElement>().flexibleWidth = float.MaxValue;
 
         var txt = btn.transform.GetChild(0).GetComponent<TMP_Text>();
@@ -146,10 +147,200 @@ public class EditorUIManager : MonoBehaviour
 
         btn.onClick.AddListener(() => { onSelect?.Invoke(); });
 
-        btnEl.ApplyCurrentTheme();
+        if (collapsible && section != null)
+        {
+            //create dropdown button
+            Button dropbtn = CreateIconButton(content, dropArrowSprite, TTProperty.FieldGenerateOptions.Default, indentSize);
+            dropbtn.GetComponent<LayoutElement>().minWidth = indentSize;
+
+            var droptxt = dropbtn.transform.GetChild(0).GetComponent<TMP_Text>();
+
+            dropbtn.onClick.AddListener(() => 
+            {
+                section.ToggleCollapse();
+            });
+
+            dropbtn.GetComponent<ButtonElement>().ApplyCurrentTheme();
+        }
+
+        btn.GetComponent<ButtonElement>().ApplyCurrentTheme();
         lblEl.ApplyCurrentTheme();
 
         return btn;
+    }
+
+    /*public Button FindHierarchyButton(string path)
+    {
+        string[] btns = path.Split('/');
+        int ind = 0;
+
+        static Transform GetButton(Transform obj, out int indent)
+        {
+            int count = 0;
+            while (count < obj.childCount && obj.GetChild(count).gameObject.name == "indent") count++;
+            indent = count;
+            return obj.GetChild(count);
+        }
+
+        for(int i = hierarchyPanel.contentArea.childCount-1; i>=0; i--)
+        {
+            Transform row = hierarchyPanel.contentArea.GetChild(0);
+            Transform btn = GetButton(row, out int indent);
+            if (indent < ind) return null;
+            if (indent == ind && btn.GetChild(0).GetComponent<TMP_Text>().text == btns[ind])
+            {
+                ind++;
+                if (ind == btns.Length) return btn.GetComponent<Button>();
+            }
+        }
+
+        return null;
+    }
+
+    public void OpenHierarchyPath(string path)
+    {
+        
+    }
+
+    public void CloseHierarchyPath(string path)
+    {
+
+    }
+
+    private void EnsureHierarchyPathExists(string path)
+    {
+        string[] btns = path.Split('/');
+        string p = btns[0];
+        var root = hierarchyRoots.Where(r => r.rootObj.name == btns[0]).FirstOrDefault().rootObj;
+        for(int i=1; i<btns.Length; i++)
+        {
+            Button btn = FindHierarchyButton(p);
+            TTObject obj = root;
+            if (btn == null) btn = AddObjectToHierarchy(btns[i - 1], i - 1, () => { obj.GeneratePropertyPanel(); });
+
+            p += btns[i];
+        }
+    }*/
+
+    public void GenerateHierarchyFromRoot(TTObject fileObj, string[] paths)
+    {
+        HierarchyRoot root = new(fileObj, paths);
+        hierarchyRoots.Add(root);
+        GenerateHierarchyFromRoot(root);
+
+    }
+
+    private string[] GenerateObjectHierarchy(TTObject obj, int indent, string[] dirs, string[] prevPath, HierarchySection section, int index=0)
+    {
+        List<string> pathTracker = new();
+        for (int i = index; i < dirs.Length; i++)
+        {
+            string dir = dirs[i];
+
+            //Use previous button/name (already generated)
+            if (dir == "..")
+            {
+                if (i < prevPath.Length)
+                {
+                    pathTracker.Add(prevPath[i]);
+                    indent++;
+                    obj = obj.FindProperty(prevPath[i]).Value as TTObject;
+                    continue;
+                }
+                else break;
+            }
+
+            //Get property and generate button
+            var prop = obj.FindProperty(dir);
+            if (prop == null) break;
+
+            void GenerateChildProp(ChildProperty child, bool collapsible, HierarchySection childSection)
+            {
+                obj = child.Value as TTObject;
+                var childObj = obj;
+                var btn = AddObjectToHierarchy(child.name, indent, () => { childObj.GeneratePropertyPanel(); }, collapsible, collapsible?childSection.subSections[^1]:null);
+                var nameProp = childObj.FindProperty("Name");
+                nameProp?.onValueChanged.AddListener((e) =>
+                {
+                    string newName = e.value.ToString();
+                    btn.transform.GetChild(0).GetComponent<TMP_Text>().text = GetStr(newName, $"unnamed_{childObj.name}");
+                });
+                childSection.AddField(btn.transform.parent.gameObject);
+            }
+
+            if (prop is ChildProperty child)
+            {
+                bool collapsible = false;
+                HierarchySection subSection = new(true);
+                if(i+1 < dirs.Length)
+                {
+                    var nextProp = (child.Value as TTObject).FindProperty(dirs[i + 1]);
+                    collapsible = (nextProp != null && nextProp is ChildrenProperty);
+                    if (collapsible) section.AddSubSection(subSection);
+                }
+                GenerateChildProp(child,collapsible,section);
+
+                indent++;
+                pathTracker.Add(prop.name);
+                continue;
+            }
+            else if (prop is ChildrenProperty children)
+            {
+                foreach (var c in children.Value as ChildProperty[])
+                {
+                    GenerateChildProp(c, false, section.subSections[^1]);
+                    GenerateObjectHierarchy(c.Value as TTObject, indent + 1, dirs, prevPath.Append(prop.name).ToArray(), section.subSections[^1], i + 1);
+                }
+                pathTracker.Add(prop.name);
+                break;
+            }
+            else break;
+        }
+
+        return pathTracker.ToArray();
+    }
+
+    private void GenerateHierarchyFromRoot(HierarchyRoot root)
+    {
+        //GIZ File [V]
+        //   +--Gizmo Section 1 [V]
+        //   |     +--Object 1 [V]
+        //   |     |     +--Special Object 1
+        //   |     +--Object 2
+        //   +--Gizmo Section 2 [V]
+        //         +--Object 1
+        //         +--Object 2 [V]
+        //               +--Special Object 1
+
+        //Gizmos, GizBuildit Section, GizBuildits, Special Objects, Special Objects
+        //.. --> Increase Indent (starts same as previous route)
+        //TTObject --> Create BTN, generates prop panel
+        //ChildProperty --> Create BTN, generates prop panel of TTObject value
+        //ChildrenProperty --> Loop each ChildProperty, follow above steps
+
+        AddObjectToHierarchy(root.rootObj.name, 0, () => { root.rootObj.GeneratePropertyPanel(); }, true, root.section);
+
+        string[] prevPath = new string[0];
+        TTObject currObj = root.rootObj;
+        foreach(var path in root.paths)
+        {
+            int indent = 1;
+            string[] dirs = path.Split("/");
+            prevPath = GenerateObjectHierarchy(currObj, indent, dirs, prevPath, root.section);
+        }
+    }
+
+    public void RefreshHierarchy()
+    {
+        hierarchyPanel.Clear();
+        foreach (var root in hierarchyRoots) GenerateHierarchyFromRoot(root);
+    }
+
+    public Button AddMenuOption(string path, Action callback)
+    {
+        Warn("Add Menu Option is not implemented yet...");
+        //throw new NotImplementedException("Add Menu Option not implemented");
+        return null;
     }
 
     public GameObject CreateGameObject(Transform parent, string name="gameobject")
@@ -189,6 +380,14 @@ public class EditorUIManager : MonoBehaviour
         if(layoutGroup != null) layoutGroup.padding = new(uispacing, uispacing, uispacing, uispacing);
 
         return areaObj.transform;
+    }
+
+    public Transform CreateContentAreaBG(Transform parent, LayoutMode layout, EditorColorType colorType)
+    {
+        Transform content = CreateContentArea(parent, layout);
+        RectTransform imgRect = CreateImg(content, whiteSprite, Vector2.zero, Vector2.zero, Vector2.one, "contentarea_bgimg", colorType).GetComponent<RectTransform>();
+        StretchRectTransform(imgRect);
+        return content;
     }
 
     private T CreateSelectableInput<T>(Transform parent, TTProperty.FieldGenerateOptions options, string inputTypeName, int? preferredInputWidth=null) where T : Selectable
@@ -303,7 +502,7 @@ public class EditorUIManager : MonoBehaviour
         bgLayout.childControlHeight = false;
         bgLayout.padding = new(-1, 0, -1, 0);
 
-        var checkImg = CreateImg(bgImg.transform, checkmarkSprite, new(.5f, .5f), new(.5f, .5f), new(16, 16), "toggle_check", EditorColorType.TextPrimary);
+        var checkImg = CreateImg(bgImg.transform, checkmarkSprite, new(.5f, .5f), new(.5f, .5f), new(14, 14), "toggle_check", EditorColorType.TextPrimary);
 
         inp.targetGraphic = bgImg;
         inp.graphic = checkImg;
@@ -370,7 +569,7 @@ public class EditorUIManager : MonoBehaviour
         img.type = Image.Type.Sliced;
         inp.targetGraphic = img;
         btnEl.btn = inp;
-        btnEl.colorType = EditorColorType.WindowPrimary;
+        btnEl.colorType = EditorColorType.WindowSecondary;
 
         //button text
         var txt = LabelElement.CreateInput(inpObj.transform, "");
@@ -423,6 +622,57 @@ public class EditorUIManager : MonoBehaviour
     }
 
     public static string GetStr(string str, string strIfNull) => str.Length == 0 || str[0] == 0 || string.IsNullOrWhiteSpace(str) ? strIfNull : str;
+
+    public class HierarchyRoot
+    {
+        public TTObject rootObj;
+        public string[] paths;
+        public HierarchySection section;
+
+        public HierarchyRoot(TTObject rootObj, string[] paths)
+        {
+            this.rootObj = rootObj;
+            this.paths = paths;
+            section = new(true);
+        }
+
+        public void AddField(GameObject field) => section.AddField(field);
+    }
+
+    public class HierarchySection
+    {
+        public bool collapsed;
+        public List<GameObject> fields;
+        public List<HierarchySection> subSections;
+
+        public HierarchySection(bool collapsed)
+        {
+            this.collapsed = collapsed;
+            fields = new();
+            subSections = new();
+        }
+
+        public void AddField(GameObject field)
+        {
+            fields.Add(field);
+            field.SetActive(!collapsed);
+        }
+
+        public void AddSubSection(HierarchySection section) => subSections.Add(section);
+
+        public void ToggleCollapse()
+        {
+            foreach (GameObject field in fields) field.SetActive(collapsed);
+            collapsed = !collapsed;
+            if(collapsed) foreach (var section in subSections) section.Collapse(collapsed);
+        }
+
+        public void Collapse(bool collapsed)
+        {
+            this.collapsed = !collapsed;
+            ToggleCollapse();
+        }
+    }
 }
 
 public enum CursorType { Normal, Click, Help, Unavailable, Drag_EW, Drag_NS, Drag_NESW, Drag_NWSE, Move, Pen, Person, Pin }

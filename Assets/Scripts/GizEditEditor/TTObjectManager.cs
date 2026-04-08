@@ -48,20 +48,20 @@ public class TTObjectManager : MonoBehaviour
     public static void LowerPropertyInitializationPriority(int amt=1) => propertyInitializationPriority+=amt; //higher values get invoked later
     public static void IncreasePropertyInitializationPriority(int amt=1) => propertyInitializationPriority-=amt; //lower values get invoked sooner
 
-    public static T Create<T>(string objectName,int addToHierarchyIndent=-1) where T : TTObject
+    public static T Create<T>(string objectName) where T : TTObject
     {
         GameObject prefab = Instance.TTObjectPrefabs.Where((obj) => obj.name == objectName).FirstOrDefault();
         T ttobj = null;
         if (prefab == null)
         {
             //Debug.LogWarning($"Failed to find prefab for '{objectName}' in TTObjectManager");
-            GameObject obj = new($"TTObject_{objectName}");
+            GameObject obj = new();
             ttobj = obj.AddComponent<T>();
         }
         else ttobj = Instantiate(prefab).GetComponent<T>();
 
+        ttobj.name = objectName;
         ttobj.InitStaticProperties();
-        if(addToHierarchyIndent!=-1) EditorUIManager.Instance.AddObjectToHierarchy(objectName, addToHierarchyIndent, () => { ttobj.GeneratePropertyPanel(); });
 
         return ttobj;
     }

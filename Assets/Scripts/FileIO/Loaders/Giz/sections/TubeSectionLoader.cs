@@ -9,19 +9,29 @@ public class TubeSectionLoader : GizmoSectionLoader
     {
         if (!TryLoad(bytes, ref index, "Tube")) return;
 
-        TubeSection section = TTObjectManager.Create<TubeSection>(Name, 1);
+        TubeSection section = TTObjectManager.Create<TubeSection>(Name);
 
         // ### Version ###
         int version = LoadBytes<int, IntLoader>(bytes, ref index);
-        section.AddProperty(new IntegerProperty("Version", version, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
+        section.AddProperty(new IntegerProperty("Version", GetTargetVersion(version), IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
 
         // ### Tube Count ###
         int count = LoadBytes<int, IntLoader>(bytes, ref index);
-        section.AddProperty(new IntegerProperty("Tube Count", count, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        IntegerProperty countProp = new("Tube Count", count, IntegerProperty.IntType.Int) { generateOptions = TTProperty.FieldGenerateOptions.Hidden };
+        section.AddProperty(countProp);
 
         // ### Tubes ###
-        var children = ChildrenProperty.LoadChildArray<Tube>(new TubeLoader(version), bytes, ref index, count, "Tube");
-        section.AddProperty(new ChildrenProperty("Tubes", children) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        var childrenProp = ChildrenProperty.Create<Tube>("Tubes", "", "Tube", new TubeLoader(version), new byte[38], bytes, ref index, count, (e) =>
+        {
+            countProp.Value = (e.value as ChildProperty[]).Length;
+        }, TTProperty.FieldGenerateOptions.HiddenWName);
+        section.AddProperty(childrenProp);
+
+        // # Tube Menu Options #
+        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Tube", () => 
+        {
+            (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
+        });
 
         _value = section;
     }

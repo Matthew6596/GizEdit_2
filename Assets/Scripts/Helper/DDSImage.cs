@@ -203,7 +203,7 @@ namespace KUtility {
                     "DXT5" => UncompressDXT5(bytes.Skip(index).ToArray(), width, height, ref index),
                     _ => throw new NotSupportedException($"Cannot determine DDS type {type}, try checking the file manually at: {index}"),
                 };
-				progressAction();
+                progressAction();
 				return bmp;
             });
 			return t;
@@ -276,7 +276,7 @@ namespace KUtility {
                     "DXT5" => UncompressDXT5(bytes.Skip(index).ToArray(), width, height, ref index),
                     _ => throw new NotSupportedException($"Cannot determine DDS type {ddsType}, try checking the file manually at: {index}"),
                 };
-				count++;
+                count++;
                 progressAction(bmp,count/(float)indicies.Length);
 
 				if(count%updateRate==0) yield return null;

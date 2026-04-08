@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -22,6 +23,7 @@ public class ChildProperty : TTProperty
 
     public override void RefreshValueDisplays(object value)
     {
+        if (Value == null) return;
         foreach(var prop in (Value as TTObject).properties) prop.RefreshValueDisplays(prop.Value);
     }
 
@@ -30,5 +32,12 @@ public class ChildProperty : TTProperty
         List<byte> bytes = new();
         foreach (var prop in ((TTObject)Value).properties) bytes.AddRange(prop.ToBytes());
         return bytes;
+    }
+
+    public override void ResetToDefault()
+    {
+        return; //TEMP
+        if (!IsDefaultNull) base.ResetToDefault();
+        foreach (var prop in (Value as TTObject).properties) prop.ResetToDefault();
     }
 }

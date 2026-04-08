@@ -36,7 +36,7 @@ public class CameraController : MonoBehaviour
     {
         if (CanLook) //(or move)
         {
-            if (hoveredObj != null) return;
+            if (hoveredObj != null && canLookL) return;
 
             cam.transform.Rotate(Vector3.left, lookInp.y * cameraSensitivity, Space.Self); //To-do: also clamp rotation
             transform.Rotate(Vector3.up, lookInp.x * cameraSensitivity, Space.Self);

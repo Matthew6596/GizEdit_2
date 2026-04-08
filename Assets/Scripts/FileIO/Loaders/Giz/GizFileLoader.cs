@@ -10,6 +10,7 @@ public class GizFileLoader : FileLoader
         base.Load(bytes, ref index);
 
         var obj = (TTFileObject)_value;
+        obj.name = Name;
 
         int magic = BitConverter.ToInt32(bytes, 0);
         if (magic == 0) return;
@@ -40,5 +41,28 @@ public class GizFileLoader : FileLoader
         obj.AddProperty(new ChildProperty("GizObstacle Section", LoadBytes<GizObstacleSection, GizObstacleSectionLoader>(bytes, ref index)) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });*/
 
         obj.AddProperty(new IntegerProperty("End Buffer", 0, IntegerProperty.IntType.Int, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+
+        // How to generate GIZ in hierarchy
+        EditorUIManager.Instance.GenerateHierarchyFromRoot(obj, new string[]
+        {
+            $"{obj.properties[1].name}/Obstacles/Special Objects/Special Objects",
+            $"{obj.properties[2].name}/Buildits/Special Objects/Special Objects",
+            $"{obj.properties[3].name}/Forces/Special Objects/Special Objects",
+            $"{obj.properties[4].name}/Blowup Objects",
+            $"../Blowups",
+            $"{obj.properties[5].name}/Pickups",
+            $"{obj.properties[6].name}/Levers",
+            $"{obj.properties[7].name}/Spinners/Special Objects/Special Objects",
+            $"{obj.properties[8].name}/MiniCuts/MiniCut Parts/MiniCut Parts",
+            $"{obj.properties[9].name}/Tubes",
+            $"{obj.properties[10].name}/ZipUps",
+            $"{obj.properties[11].name}/Turrets/Special Objects/Special Objects",
+            $"{obj.properties[12].name}/Bomb Generators/Special Objects/Special Objects",
+            $"{obj.properties[13].name}/Panels",
+            $"{obj.properties[14].name}/Hat Machines",
+            $"{obj.properties[15].name}/Push Blocks",
+            $"{obj.properties[16].name}/Torp Machines",
+            $"{obj.properties[17].name}/Shadow Edits",
+        });
     }
 }

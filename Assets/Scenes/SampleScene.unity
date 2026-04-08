@@ -187,11 +187,13 @@ MonoBehaviour:
   uispacing: 2
   indentSize: 8
   inputFieldSprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
-  checkmarkSprite: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+  checkmarkSprite: {fileID: 21300000, guid: ad8f69ebd7835ac4aaf468261c1b6aad, type: 3}
   dropArrowSprite: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
   moveGizIcon: {fileID: 21300000, guid: 1cc883510daec4242ab0a91ac9e26748, type: 3}
   whiteSprite: {fileID: 21300000, guid: 650b736ce885f9e46871b36df5fe1937, type: 3}
   whiteSpriteSliced: {fileID: 21300000, guid: e78ce53699b78a64bbfc37f42dcf8404, type: 3}
+  trashIcon: {fileID: 21300000, guid: cf11eb9412a9ea845931bdec0f4a9a45, type: 3}
+  plusIcon: {fileID: 21300000, guid: bcebf0fa118486b4895495abf8e3981f, type: 3}
   dropdownPrefab: {fileID: 6126412042599148528, guid: f32c9be8789d0b342bfbbca9927d2ba1, type: 3}
 --- !u!4 &31130636
 Transform:
@@ -3440,7 +3442,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000023473818, y: 0.000013187594}
+  m_AnchoredPosition: {x: 0.000023473818, y: 0.0000008308526}
   m_SizeDelta: {x: 0, y: 73}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &459224689

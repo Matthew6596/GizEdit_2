@@ -19,15 +19,7 @@ public class TubeLoader : PropertyLoader
 
         // ### Name ###
         string name = Encoding.UTF8.GetString(bytes, index, 16);
-
-        var hierarchyBtn = EditorUIManager.Instance.AddObjectToHierarchy(EditorUIManager.GetStr(name, "unnamed_tube"), 2, () => { tube.GeneratePropertyPanel(); });
-
-        tube.AddProperty(new StringFixLenProperty("Name", name, 16, "", (e) =>
-        {
-            //update labels
-            string newName = e.value.ToString();
-            hierarchyBtn.transform.GetChild(0).GetComponent<TMP_Text>().text = EditorUIManager.GetStr(newName, "unnamed_tube");
-        }));
+        tube.AddProperty(new StringFixLenProperty("Name", name, 16, ""));
         index += 16;
 
         // ### Position ###
@@ -45,18 +37,30 @@ public class TubeLoader : PropertyLoader
             tube.UpdateRadius(e.value.Convert<float>());
         }));
 
+        // ### Magnetic ###
+        bool magnetic = false;
         if (version >= 2)
         {
-            // ### Magnetic ###
-            tube.AddProperty(new BoolProperty("Magnetic", bytes[index] == 1, ""));
+            magnetic = bytes[index] != 0;
             index++;
         }
+        if(ShouldAddProperty(version,v => v >= 2))
+        {
+            // ## Magnetic ##
+            tube.AddProperty(new BoolProperty("Magnetic", magnetic, ""));
+        }
 
+        // ### Special Object ###
+        string specialObj = "";
         if(version >= 3) //TCS MAX VERSION IS 2
         {
-            // ### Special Object ###
+            specialObj = LoadBytes<string, String8Loader>(bytes, ref index);
+        }
+        if (ShouldAddProperty(version, v => v >= 3))
+        {
+            // ## Special Object ##
             //may later change this to something like "ReferenceProperty"
-            tube.AddProperty(new StringProperty("Special Object", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "Unknown exactly how the special object involves the tube."));
+            tube.AddProperty(new StringProperty("Special Object", specialObj, StringProperty.MaxSize.Byte, "Unknown exactly how the special object involves the tube."));
         }
 
         _value = tube;

@@ -29,6 +29,8 @@ public abstract class TTProperty
         }
     }
 
+    public bool IsDefaultNull => defaultValue == null;
+
     private object defaultValue;
     private string info;
 
@@ -43,13 +45,14 @@ public abstract class TTProperty
 
         if(onChangeAction != null) onValueChanged.AddListener(onChangeAction);
 
+        _value = value;
         object val = value;
         TTObjectManager.AddPropertyInitializationListener(()=> { Value = val; });
     }
 
     public virtual void RefreshValueDisplays(object value) { }
 
-    public void ResetToDefault()
+    public virtual void ResetToDefault()
     {
         Value = defaultValue;
     }
@@ -57,7 +60,7 @@ public abstract class TTProperty
     /// <summary>
     /// Set the Value without invoking OnValueChanged events
     /// </summary>
-    protected void SetValueWithoutNotify(object val)
+    public void SetValueWithoutNotify(object val)
     {
         _value = val;
     }
@@ -79,8 +82,8 @@ public abstract class TTProperty
     [Flags]
     public enum FieldGenerateOptions
     {
-        None = 0, NewLine=0b0001, ShowName=0b0010, Hidden=0b0100, Readonly=0b1000,
-        Default = NewLine | ShowName, ReadonlyWName = Readonly | ShowName
+        None = 0, Partial=0b0001, ShowName=0b0010, Hidden=0b0100, Readonly=0b1000,
+        Default = ShowName, ReadonlyWName = Readonly | ShowName, HiddenWName = Partial | ShowName
     }
 
     public virtual IEnumerable<byte> ToBytes() { return new byte[0]; }

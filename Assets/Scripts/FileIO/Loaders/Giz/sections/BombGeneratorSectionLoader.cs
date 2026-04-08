@@ -8,8 +8,30 @@ public class BombGeneratorSectionLoader : GizmoSectionLoader
     {
         if (!TryLoad(bytes, ref index, "BombGenerator")) return;
 
-        BombGeneratorSection section = TTObjectManager.Create<BombGeneratorSection>(Name, 1);
-        RawProperty.Add(section, bytes, ref index, _value);
+        BombGeneratorSection section = TTObjectManager.Create<BombGeneratorSection>(Name);
+
+        // ### Version ###
+        int version = bytes[index];
+        index++;
+        section.AddProperty(new IntegerProperty("Version", GetTargetVersion(version), IntegerProperty.IntType.Int, "This is always 1 in Vanilla TCS.") { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
+
+        // ### Bomb Generator Count ###
+        int count = LoadBytes<short, ShortLoader>(bytes, ref index);
+        IntegerProperty countProp = new("Bomb Generator Count", count, IntegerProperty.IntType.Short) { generateOptions = TTProperty.FieldGenerateOptions.Hidden };
+        section.AddProperty(countProp);
+
+        // ### Bomb Generators ###
+        ChildrenProperty childrenProp = ChildrenProperty.Create<BombGenerator>("Bomb Generators", "", "Bomb Generator", new BombGeneratorLoader(version), new byte[22], bytes, ref index, count, (e) =>
+        {
+            countProp.Value = (e.value as ChildProperty[]).Length;
+        }, TTProperty.FieldGenerateOptions.HiddenWName);
+        section.AddProperty(childrenProp);
+
+        // # Bomb Generator Menu Options #
+        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Bomb Generator", () =>
+        {
+            (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
+        });
 
         _value = section;
     }

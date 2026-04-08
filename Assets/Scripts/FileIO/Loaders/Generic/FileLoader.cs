@@ -19,6 +19,6 @@ public class FileLoader : PropertyLoader
         obj.dataType = TTLoader.CurrentLoadingFileType;
         obj.ogpath = TTLoader.CurrentLoadingFilePath;
         _value = obj;
-        EditorUIManager.Instance.AddObjectToHierarchy(Name, 0, () => { obj.GeneratePropertyPanel(); });
+        //EditorUIManager.Instance.AddObjectToHierarchy(Name, 0, () => { obj.GeneratePropertyPanel(); });
     }
 }

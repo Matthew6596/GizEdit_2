@@ -1,14 +1,244 @@
+using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public class GizObstacleLoader : PropertyLoader
 {
     public override string Name => "GizObstacle";
 
+    private int version;
+
+    public GizObstacleLoader(int version)
+    {
+        this.version = version;
+    }
+
     public override void Load(byte[] bytes, ref int index)
     {
         GizObstacle obstacle = TTObjectManager.Create<GizObstacle>(Name);
-        List<TTProperty> props = new();
+
+        // ### Name ###
+        string name = Encoding.UTF8.GetString(bytes, index, 16);
+        obstacle.AddProperty(new StringFixLenProperty("Name", name, 16, ""));
+        index += 16;
+
+        // ### Position ###
+        PositionProperty posProp = new("Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), obstacle.transform, "The position of the obstacle, or one corner of the bounds.");
+        obstacle.AddProperty(posProp);
+
+        // ### Bounds Corner ###
+        Vector3 boundPoint = Vector3.zero;
+        if (version >= 2) boundPoint = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 2))
+        {
+            // ## Bounds Corner ##
+            obstacle.AddProperty(new PositionProperty("Bounds Corner", boundPoint, obstacle.BoundsCorner.transform,"The second point which makes up the obstacle bounding box."));
+        }
+
+        // ### Unknown 2 ###
+        obstacle.AddProperty(new FloatProperty("Unknown 2", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
+
+        // ### Unknown 3 ###
+        obstacle.AddProperty(new FloatProperty("Unknown 3", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
+
+        // ### Unknown 4 ###
+        // ### Unknown 5 ###
+        Vector3 unk4 = Vector3.zero;
+        short unk5 = 0;
+        if (version >= 3)
+        {
+            unk4 = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
+            unk5 = LoadBytes<short, ShortLoader>(bytes, ref index);
+        }
+        if (ShouldAddProperty(version, v => v >= 3))
+        {
+            // ## Unknown 4 ##
+            obstacle.AddProperty(new Vector3Property("Unknown 4", unk4, ""));
+
+            // ## Unknown 5 ##
+            obstacle.AddProperty(new IntegerProperty("Unknown 5", unk5, IntegerProperty.IntType.Short, ""));
+        }
+
+        // ### Unknown 6 ###
+        obstacle.AddProperty(new IntegerProperty("Unknown 6", LoadBytes<int, IntLoader>(bytes, ref index), IntegerProperty.IntType.Int, ""));
+
+        // ### Unknown 7 ###
+        int unk7 = 0;
+        if (version >= 12) unk7 = LoadBytes<int, IntLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 12))
+        {
+            // ## Unknown 7 ##
+            obstacle.AddProperty(new IntegerProperty("Unknown 7", unk7, IntegerProperty.IntType.Int, ""));
+        }
+
+        // ### Unknown 8 ###
+        // ### Unknown 9 ###
+        short unk8 = 0;
+        byte unk9 = 0;
+        if (version == 6)
+        {
+            unk8 = LoadBytes<short, ShortLoader>(bytes, ref index);
+            unk9 = bytes[index];
+            index++;
+        }
+        if (ShouldAddProperty(version, v => v == 6))
+        {
+            // ## Unknown 8 ##
+            obstacle.AddProperty(new IntegerProperty("Unknown 8", unk8, IntegerProperty.IntType.Short, ""));
+
+            // ## Unknown 9 ##
+            obstacle.AddProperty(new IntegerProperty("Unknown 9", unk9, IntegerProperty.IntType.Byte, ""));
+        }
+
+        // ### Unknown 10 ###
+        obstacle.AddProperty(new IntegerProperty("Unknown 10", bytes[index], IntegerProperty.IntType.Byte, ""));
+        index++;
+
+        // ### Unknown 11 ###
+        obstacle.AddProperty(new IntegerProperty("Unknown 11", bytes[index], IntegerProperty.IntType.Byte, ""));
+        index++;
+
+        // ### Unknown 12 ###
+        int unk12 = 0;
+        if (version >= 7)
+        {
+            unk12 = bytes[index];
+            index++;
+        }
+        if (ShouldAddProperty(version, v => v >= 7))
+        {
+            // ## Unknown 12 ##
+            obstacle.AddProperty(new IntegerProperty("Unknown 12", unk12, IntegerProperty.IntType.Byte, ""));
+        }
+
+        // ### Special Objects ###
+        GizSpecialObjectsLoader objsLoader = new((o, ind) =>
+        {
+            // ### Unknown 13 ###
+            short unk13 = 0;
+            if (version >= 8)
+            {
+                unk13 = BitConverter.ToInt16(bytes, ind);
+                ind += 2;
+            }
+            if (ShouldAddProperty(version, v => v >= 8))
+            {
+                // ## Unknown 13 ##
+                o.AddProperty(new IntegerProperty("Unknown 13", unk13, IntegerProperty.IntType.Short));
+            }
+            return ind;
+        });
+        objsLoader.Load(bytes, ref index);
+        var specialObjs = objsLoader.GetValue<GizSpecialObjects>();
+        obstacle.AddProperty(new ChildProperty("Special Objects", specialObjs, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+
+        // # Special Objects Editor Nav Buttons #
+        specialObjs.PrependProperty(new NavBtnProperty($"<-- Back to GizObstacle", () => { obstacle.GeneratePropertyPanel(); }));
+        obstacle.AddProperty(new NavBtnProperty("Special Objects -->", () => { specialObjs.GeneratePropertyPanel(); }));
+
+        // ### Unknown 14 ###
+        float unk14 = 0;
+        if (version >= 4) unk14 = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 4)) 
+        {
+            // ## Unknown 14 ##
+            obstacle.AddProperty(new FloatProperty("Unknown 14", unk14, FloatProperty.FloatType.Float, ""));
+        }
+
+        // ### Unknown 15 ###
+        float unk15 = 0;
+        if (version >= 5) unk14 = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 5))
+        {
+            // ## Unknown 15 ##
+            obstacle.AddProperty(new FloatProperty("Unknown 15", unk15, FloatProperty.FloatType.Float, ""));
+        }
+
+        // ### Unknown 16 ###
+        float unk16 = 0;
+        if (version >= 8) unk16 = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 8))
+        {
+            // ## Unknown 16 ##
+            obstacle.AddProperty(new FloatProperty("Unknown 16", unk16, FloatProperty.FloatType.Float, ""));
+        }
+
+        // ### Unknown 17 ###
+        short unk17 = 0;
+        if (version == 9) unk17 = LoadBytes<short, ShortLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v == 9))
+        {
+            // ## Unknown 17 ##
+            obstacle.AddProperty(new IntegerProperty("Unknown 17", unk17, IntegerProperty.IntType.Short, ""));
+        }
+
+        // ### Unknown 18 ###
+        string unk18 = "";
+        if (version >= 10) unk18 = LoadBytes<string, String8Loader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 10))
+        {
+            // ## Unknown 18 ##
+            obstacle.AddProperty(new StringProperty("Unknown 18", unk18, StringProperty.MaxSize.Byte, ""));
+        }
+
+        // ### Minimum Studs Value ###
+        // ### Maximum Studs Value ###
+        // ### Studs Angle ###
+        // ### Studs Position ###
+        ushort minStuds = 0, maxStuds = 0, studAng = 0;
+        Vector3 studPos = Vector3.zero;
+        if (version >= 4)
+        {
+            minStuds = (ushort)LoadBytes<short, ShortLoader>(bytes, ref index);
+            maxStuds = (ushort)LoadBytes<short, ShortLoader>(bytes, ref index);
+            studAng = (ushort)LoadBytes<short, ShortLoader>(bytes, ref index);
+            studPos = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
+        }
+        if (ShouldAddProperty(version, v => v >= 4))
+        {
+            // ## Minimum Studs Value ##
+            obstacle.AddProperty(new IntegerProperty("Minimum Studs Value", minStuds, IntegerProperty.IntType.UShort, "..."));
+
+            // ## Maximum Studs Value ##
+            obstacle.AddProperty(new IntegerProperty("Maximum Studs Value", maxStuds, IntegerProperty.IntType.UShort, "..."));
+
+            // ## Studs Angle ##
+            GameObject studsSpawnObjTEMP = new("studs_spawn_obj_TEMP");
+            studsSpawnObjTEMP.transform.SetParent(obstacle.transform);
+            studsSpawnObjTEMP.transform.localPosition = Vector3.zero;
+            obstacle.AddProperty(new AngleProperty("Studs Angle", studAng, studsSpawnObjTEMP.transform, "The angle at which studs emit."));
+
+            // ## Studs Position ##
+            obstacle.AddProperty(new PositionProperty("Studs Position", studPos, studsSpawnObjTEMP.transform, "The relative position at which studs emit.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
+        }
+
+        // ### Studs Speed ###
+        float studSpd = 1.75f;
+        if (version >= 11) studSpd = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 11))
+        {
+            // ## Studs Speed ##
+            obstacle.AddProperty(new FloatProperty("Studs Speed", studSpd, FloatProperty.FloatType.Float, "The speed of the studs as they emit.", (e) => { }, 1.75f));
+        }
+
+        // ### Unknown 19 ###
+        string unk19 = "";
+        if (version >= 13) unk18 = LoadBytes<string, String8Loader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 13))
+        {
+            // ## Unknown 19 ##
+            obstacle.AddProperty(new StringProperty("Unknown 19 (sfx)", unk19, StringProperty.MaxSize.Byte, ""));
+        }
+
+        // ### Unknown 20 ###
+        string unk20 = "";
+        if (version >= 14) unk18 = LoadBytes<string, String8Loader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 14))
+        {
+            // ## Unknown 20 ##
+            obstacle.AddProperty(new StringProperty("Unknown 20 (sfx)", unk20, StringProperty.MaxSize.Byte, ""));
+        }
 
         _value = obstacle;
     }

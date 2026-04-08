@@ -26,4 +26,32 @@ public abstract class PropertyLoader
         loader.Load(bytes, ref index);
         return loader.GetValue<T>();
     }
+
+    public T LoadNewTTObject<T>(byte[] bytes) where T : TTObject
+    {
+        int tempInd = 0;
+        Load(bytes, ref tempInd);
+        var newobj = GetValue<T>();
+        newobj.ResetToDefault();
+        return newobj;
+    }
+
+    public TTObject LoadNewTTObject(byte[] bytes)
+    {
+        int tempInd = 0;
+        Load(bytes, ref tempInd);
+        var newobj = _value as TTObject;
+        newobj.ResetToDefault();
+        return newobj;
+    }
+
+    /// <summary>
+    /// Returns true or false depending on whether the property should be added to the TTObject, accounting for the target version.
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="versionComparison"></param>
+    /// <returns></returns>
+    protected bool ShouldAddProperty(int version, Func<int,bool> versionComparison) => TTLoader.ShouldAddProperty(Name, version, versionComparison);
+
+    protected int GetTargetVersion(int version) => TTLoader.HasVersionTarget(Name, out int targVers) ? targVers : version;
 }

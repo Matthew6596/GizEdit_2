@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class GizObstacle : TTObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private GameObject _boundsCorner;
+    public GameObject BoundsCorner
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        get
+        {
+            if (_boundsCorner == null) _boundsCorner = new GameObject("obstacle_bounds_corner");
+            return _boundsCorner;
+        }
     }
 }

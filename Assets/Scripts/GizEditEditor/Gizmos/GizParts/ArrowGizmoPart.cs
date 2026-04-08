@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class ArrowGizmoPart : EditorGizmoPart<float>
@@ -7,7 +8,7 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
     public Vector3 vector;
     public Color color;
 
-    private Vector3 P000, P001, P010, P011, P100, P101, P110, P111;
+    private Vector3 arrowCorner1, arrowCorner2, arrowCorner3, arrowCorner4, arrowPoint, arrowP1, arrowP2, arrowP3, arrowP4, startP1, startP2, startP3, startP4;
     private Vector3 hoverScalar;
 
     private Transform camTransform;
@@ -16,9 +17,9 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
 
     static float hoverScale = 2f;
 
-    private Vector3 offsetPos;
-    //private Vector3 mouseDownPos;
+    private Vector3 dragStartHit, dragStartObjPos;
     private bool prevMouseDown = false;
+    private Plane dragPlane = new();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -31,6 +32,7 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
         collider.center = vector / 2;
         Vector3 min = Vector3.Scale(-thicknessVec,opp);
         Vector3 max = Vector3.Scale(thicknessVec, opp)+vector;
+        Vector3 P000, P001, P010, P011, P100, P101, P110, P111;
         P000 = new Vector3(min.x, min.y, min.z);
         P001 = new Vector3(min.x, min.y, max.z);
         P010 = new Vector3(min.x, max.y, min.z);
@@ -39,7 +41,26 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
         P101 = new Vector3(max.x, min.y, max.z);
         P110 = new Vector3(max.x, max.y, min.z);
         P111 = new Vector3(max.x, max.y, max.z);
+        var sortedDist = new Vector3[] { P000, P001, P010, P011, P100, P101, P110, P111 }.OrderBy(v=>v.sqrMagnitude).Reverse().ToArray();
+        startP1 = sortedDist[4];
+        startP2 = sortedDist[5];
+        startP3 = sortedDist[6];
+        startP4 = sortedDist[7];
+        arrowCorner1 = sortedDist[0];
+        arrowCorner2 = sortedDist[1];
+        arrowCorner3 = sortedDist[2];
+        arrowCorner4 = sortedDist[3];
+        arrowPoint = (arrowCorner1 + arrowCorner2 + arrowCorner3 + arrowCorner4)/4;
+        float arrowEdgeInset = 0.8f;
+        arrowP1 = arrowCorner1 * arrowEdgeInset;
+        arrowP2 = arrowCorner2 * arrowEdgeInset;
+        arrowP3 = arrowCorner3 * arrowEdgeInset;
+        arrowP4 = arrowCorner4 * arrowEdgeInset;
         hoverScalar = opp * hoverScale + (Vector3.one-opp);
+        arrowCorner1 = Vector3.Scale(arrowP1,hoverScalar);
+        arrowCorner2 = Vector3.Scale(arrowP2,hoverScalar);
+        arrowCorner3 = Vector3.Scale(arrowP3,hoverScalar);
+        arrowCorner4 = Vector3.Scale(arrowP4,hoverScalar);
     }
 
     private void Update()
@@ -89,49 +110,78 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
         GL.Begin(GL.QUADS);
         GL.Color(color);
 
-        GL.Vertex(Vector3.Scale(P010, scalar));
-        GL.Vertex(Vector3.Scale(P011, scalar));
-        GL.Vertex(Vector3.Scale(P001, scalar));
-        GL.Vertex(Vector3.Scale(P000, scalar));
+        //drawing arrow shaft
+        GL.Vertex(Vector3.Scale(startP3, scalar));
+        GL.Vertex(Vector3.Scale(startP4, scalar));
+        GL.Vertex(Vector3.Scale(startP1, scalar));
+        GL.Vertex(Vector3.Scale(startP2, scalar));
 
-        GL.Vertex(Vector3.Scale(P100, scalar));
-        GL.Vertex(Vector3.Scale(P110, scalar));
-        GL.Vertex(Vector3.Scale(P010, scalar));
-        GL.Vertex(Vector3.Scale(P000, scalar));
+        GL.Vertex(Vector3.Scale(arrowP1, scalar));
+        GL.Vertex(Vector3.Scale(arrowP3, scalar));
+        GL.Vertex(Vector3.Scale(startP3, scalar));
+        GL.Vertex(Vector3.Scale(startP1, scalar));
 
-        GL.Vertex(Vector3.Scale(P001, scalar));
-        GL.Vertex(Vector3.Scale(P101, scalar));
-        GL.Vertex(Vector3.Scale(P100, scalar));
-        GL.Vertex(Vector3.Scale(P000, scalar));
+        GL.Vertex(Vector3.Scale(startP2, scalar));
+        GL.Vertex(Vector3.Scale(arrowP2, scalar));
+        GL.Vertex(Vector3.Scale(arrowP1, scalar));
+        GL.Vertex(Vector3.Scale(startP1, scalar));
 
-        GL.Vertex(Vector3.Scale(P101, scalar));
-        GL.Vertex(Vector3.Scale(P100, scalar));
-        GL.Vertex(Vector3.Scale(P110, scalar));
-        GL.Vertex(Vector3.Scale(P111, scalar));
+        //GL.Vertex(Vector3.Scale(P101, scalar));
+        //GL.Vertex(Vector3.Scale(P100, scalar));
+        //GL.Vertex(Vector3.Scale(P110, scalar));
+        //GL.Vertex(Vector3.Scale(P111, scalar));
 
-        GL.Vertex(Vector3.Scale(P011, scalar));
-        GL.Vertex(Vector3.Scale(P001, scalar));
-        GL.Vertex(Vector3.Scale(P101, scalar));
-        GL.Vertex(Vector3.Scale(P111, scalar));
+        GL.Vertex(Vector3.Scale(startP4, scalar));
+        GL.Vertex(Vector3.Scale(startP2, scalar));
+        GL.Vertex(Vector3.Scale(arrowP2, scalar));
+        GL.Vertex(Vector3.Scale(arrowP4, scalar));
 
-        GL.Vertex(Vector3.Scale(P110, scalar));
-        GL.Vertex(Vector3.Scale(P010, scalar));
-        GL.Vertex(Vector3.Scale(P011, scalar));
-        GL.Vertex(Vector3.Scale(P111, scalar));
+        GL.Vertex(Vector3.Scale(arrowP3, scalar));
+        GL.Vertex(Vector3.Scale(startP3, scalar));
+        GL.Vertex(Vector3.Scale(startP4, scalar));
+        GL.Vertex(Vector3.Scale(arrowP4, scalar));
 
-        /*else //draw arrow
-        {
-            GL.Begin(GL.LINES);
-            GL.Color(color);
+        //connect shaft to corners
+        GL.Vertex(Vector3.Scale(arrowP1, scalar));
+        GL.Vertex(Vector3.Scale(arrowP2, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner2, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner1, scalar));
 
-            GL.Vertex3(0, 0, 0);
-            GL.Vertex(vector);
-        }*/
+        GL.Vertex(Vector3.Scale(arrowP2, scalar));
+        GL.Vertex(Vector3.Scale(arrowP3, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner3, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner2, scalar));
+
+        GL.Vertex(Vector3.Scale(arrowP3, scalar));
+        GL.Vertex(Vector3.Scale(arrowP4, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner4, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner3, scalar));
+
+        GL.Vertex(Vector3.Scale(arrowP4, scalar));
+        GL.Vertex(Vector3.Scale(arrowP1, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner1, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner4, scalar));
 
         GL.End();
         GL.Begin(GL.TRIANGLES);
+        GL.Color(color);
 
         //Draw arrow tip
+        GL.Vertex(Vector3.Scale(arrowCorner1, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner3, scalar));
+        GL.Vertex(Vector3.Scale(arrowPoint, scalar));
+
+        GL.Vertex(Vector3.Scale(arrowCorner3, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner2, scalar));
+        GL.Vertex(Vector3.Scale(arrowPoint, scalar));
+
+        GL.Vertex(Vector3.Scale(arrowCorner2, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner4, scalar));
+        GL.Vertex(Vector3.Scale(arrowPoint, scalar));
+
+        GL.Vertex(Vector3.Scale(arrowCorner4, scalar));
+        GL.Vertex(Vector3.Scale(arrowCorner1, scalar));
+        GL.Vertex(Vector3.Scale(arrowPoint, scalar));
 
         GL.End();
         GL.PopMatrix();
@@ -139,49 +189,45 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
 
     public override void OnLeftDrag(Vector3 mouseDelta)
     {
-        //calculate plane about axis facing camera
-        //euler rotation = rotation * axis (if y, rotate on Z, x=-90)
-        Vector3 camPos = camTransform.position;
-        Vector3 clickPos = MouseDownPos;
         Vector3 objPos = transform.position;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
         if (!prevMouseDown)
         {
-            offsetPos = objPos - clickPos;
+            // build a plane through the click point
+            // normal faces camera but projected perpendicular to movement axis
+            Vector3 camDir = (camTransform.position - objPos).normalized;
+            // remove the movement axis component from camDir to get plane normal
+            Vector3 planeNormal = camDir - Vector3.Dot(camDir, vector) * vector;
+
+            // fallback if camera is looking straight down the axis
+            if (planeNormal.sqrMagnitude < 0.001f)
+                planeNormal = camTransform.up;
+            else
+                planeNormal = planeNormal.normalized;
+
+            dragPlane = new Plane(planeNormal, objPos);
+
+            // get initial hit point to calculate offset
+            if (dragPlane.Raycast(ray, out float enterDist))
+            {
+                dragStartHit = ray.GetPoint(enterDist);
+                dragStartObjPos = objPos;
+            }
+
             prevMouseDown = true;
+            return;
         }
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Vector3 newNorm = ray.direction.normalized;
-        Vector3 opp = Vector3.one - vector;
 
-        //1. calculate opp distance
-        float d = Vector3.Scale(camPos - clickPos,opp).magnitude;
-
-        //2. get opp coords
-        Vector3 tempPoint = Vector3.Scale(newNorm, opp) * d;
-
-        //3. get distance scale
-        float a = (opp.x == 0) ? (tempPoint.y / newNorm.y) : (tempPoint.x / newNorm.x);
-
-        //4. get final intersection point
-        Vector3 p = tempPoint + (Vector3.Scale(newNorm, vector) * a) + camPos;
-
-        //Debug.Log($"drag info: norm: {newNorm}, opp: {opp}, d: {d}, temp: {tempPoint}, a: {a}, camPos: {camPos}, clickPos: {clickPos}, point: {p}, oldval: {value}, val:{Vector3.Scale(p, vector).magnitude}");
-        Vector3 pv = Vector3.Scale(p+offsetPos, vector);
-        value = pv.x + pv.y + pv.z; //gets only the value on the axis w/out ifs
-        OnValueChange.Invoke(value);
-
-        MouseDownPos = pv;
-
-        //strategy 2
-        /*Plane p1 = new(Vector3.right, transform.position.x);
-        Plane p2 = new(Vector3.up, transform.position.y);
-        Plane p3 = new(Vector3.forward, transform.position.z);
-        float smallestDist = float.MaxValue;
-        if (opp.x==1&&p1.Raycast(ray, out float f1)) smallestDist = f1; 
-        if (opp.y==1&&p2.Raycast(ray, out float f2) && f2 < smallestDist) smallestDist = f2;
-        if (opp.z==1&&p3.Raycast(ray, out float f3) && f3 < smallestDist) smallestDist = f3;
-        Vector3 newPoint = ray.GetPoint(smallestDist);
-        value = Vector3.Scale(newPoint, vector).magnitude; //gets just the value on the axis
-        OnValueChange.Invoke(value);*/
+        // project mouse ray onto the same plane each frame
+        if (dragPlane.Raycast(ray, out float dist))
+        {
+            Vector3 hitPoint = ray.GetPoint(dist);
+            // get delta from initial hit, projected onto movement axis
+            Vector3 delta = hitPoint - dragStartHit;
+            float axisDelta = Vector3.Dot(delta, vector);
+            value = Vector3.Dot(dragStartObjPos, vector) + axisDelta;
+            OnValueChange.Invoke(value);
+        }
     }
 }
