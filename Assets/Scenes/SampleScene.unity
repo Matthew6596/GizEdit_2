@@ -3442,7 +3442,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000023473818, y: 0.0000008308526}
+  m_AnchoredPosition: {x: 0.000023473818, y: 0.00006371471}
   m_SizeDelta: {x: 0, y: 73}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &459224689
@@ -7238,6 +7238,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TTObjectManager
   TTObjectPrefabs:
   - {fileID: 7228739904903143002, guid: 00ac9cbde7c8f264e9d44807d2cf1cbd, type: 3}
+  - {fileID: 8687520862102868908, guid: 92a6d7fcdb1c69d49b4dbc23521346cd, type: 3}
+  - {fileID: 8027621422481041473, guid: f954849c9623de744923582b914e257b, type: 3}
+  - {fileID: 9153693556848368847, guid: af85d427065c8d84eb215a945f7efde8, type: 3}
+  - {fileID: 8774423931600830560, guid: b9b920d385391074fa94b380e2f3165c, type: 3}
 --- !u!4 &1036357608
 Transform:
   m_ObjectHideFlags: 0

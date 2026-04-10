@@ -33,7 +33,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 2))
         {
             // ## Bounds Corner ##
-            obstacle.AddProperty(new PositionProperty("Bounds Corner", boundPoint, obstacle.BoundsCorner.transform,"The second point which makes up the obstacle bounding box."));
+            obstacle.AddProperty(new PositionProperty("Bounds Corner?", boundPoint, obstacle.BoundsCorner.transform,"The second point which makes up the obstacle bounding box.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
         }
 
         // ### Unknown 2 ###
@@ -109,7 +109,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 7))
         {
             // ## Unknown 12 ##
-            obstacle.AddProperty(new IntegerProperty("Unknown 12", unk12, IntegerProperty.IntType.Byte, ""));
+            obstacle.AddProperty(new IntegerProperty("Unknown 12", unk12, IntegerProperty.IntType.Byte, "") { generateOptions=TTProperty.FieldGenerateOptions.ReadonlyWName});
         }
 
         // ### Special Objects ###
@@ -148,7 +148,7 @@ public class GizObstacleLoader : PropertyLoader
 
         // ### Unknown 15 ###
         float unk15 = 0;
-        if (version >= 5) unk14 = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (version >= 5) unk15 = LoadBytes<float, FloatLoader>(bytes, ref index);
         if (ShouldAddProperty(version, v => v >= 5))
         {
             // ## Unknown 15 ##
@@ -224,7 +224,7 @@ public class GizObstacleLoader : PropertyLoader
 
         // ### Unknown 19 ###
         string unk19 = "";
-        if (version >= 13) unk18 = LoadBytes<string, String8Loader>(bytes, ref index);
+        if (version >= 13) unk19 = LoadBytes<string, String8Loader>(bytes, ref index);
         if (ShouldAddProperty(version, v => v >= 13))
         {
             // ## Unknown 19 ##
@@ -233,7 +233,7 @@ public class GizObstacleLoader : PropertyLoader
 
         // ### Unknown 20 ###
         string unk20 = "";
-        if (version >= 14) unk18 = LoadBytes<string, String8Loader>(bytes, ref index);
+        if (version >= 14) unk20 = LoadBytes<string, String8Loader>(bytes, ref index);
         if (ShouldAddProperty(version, v => v >= 14))
         {
             // ## Unknown 20 ##

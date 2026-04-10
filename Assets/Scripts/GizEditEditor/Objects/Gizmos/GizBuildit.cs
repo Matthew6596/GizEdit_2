@@ -2,15 +2,6 @@ using UnityEngine;
 
 public class GizBuildit : TTObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public GameObject renderObj;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

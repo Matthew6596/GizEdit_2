@@ -14,14 +14,8 @@ public class MiniCutPartLoader : PropertyLoader
         string name = LoadBytes<string,String8Loader>(bytes, ref index);
         part.AddProperty(new StringProperty("Name", name, StringProperty.MaxSize.Byte, ""));
 
-        // ### Unknown 1 ###
-        part.AddProperty(new FloatProperty("Unknown 1", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
-
-        // ### Unknown 2 ###
-        part.AddProperty(new FloatProperty("Unknown 2", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
-
-        // ### Unknown 3 ###
-        part.AddProperty(new FloatProperty("Unknown 3", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        // ### Target Position ###
+        part.AddProperty(new PositionProperty("Target Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), part.transform, "..."));
 
         // ### Unknown 4 ###
         part.AddProperty(new FloatProperty("Unknown 4", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));

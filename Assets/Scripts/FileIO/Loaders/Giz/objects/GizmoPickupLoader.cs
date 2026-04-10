@@ -27,15 +27,15 @@ public class GizmoPickupLoader : PropertyLoader
         pickup.AddProperty(new PositionProperty("Position", LoadBytes<Vector3,Vector3Loader>(bytes, ref index), pickup.transform, ""));
 
         // ### (Pickup) Type ###
-        pickup.AddProperty(new EnumProperty("Type", GizmoPickup.GetPickupType((char)bytes[index]), GizmoPickup.PickupTypes, "This determines what type this pickup is. Note that 'Torpedo' may not function as expected.", (e) =>
+        pickup.AddProperty(new EnumProperty("Type", bytes[index], GizmoPickup.PickupTypes, "This determines what type this pickup is. Note that 'Torpedo' may not function as expected.", (e) =>
         {
             //Update visually
-            pickup.UpdateRender((int)e.value);
-        }));
+            pickup.UpdateRender((byte)e.value);
+        }, (byte)'s'));
         index++;
 
         // ### Spawn Type ###
-        int spawnType = 0;
+        byte spawnType = 0;
         if (version >= 2)
         {
             spawnType = bytes[index];
@@ -44,7 +44,7 @@ public class GizmoPickupLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 2))
         {
             // ## Spawn Type ##
-            pickup.AddProperty(new EnumProperty("Spawn Type", (spawnType) switch { 2 => 1, 6 => 2, _ => 0 }, new string[] { "None", "Triggered", "Auto-Collect" }, "This is how the pickup loads into the level. If 'None' it acts as normal. If 'Triggered' it will only spawn after being triggered in the .git file. If 'Auto-Collect' it will be collected automatically when it spawns (more info needed)."));
+            pickup.AddProperty(new EnumProperty("Spawn Type", spawnType, GizmoPickup.SpawnTypes, "This is how the pickup loads into the level. If 'None' it acts as normal. If 'Triggered' it will only spawn after being triggered in the .git file. If 'Auto-Collect' it will be collected automatically when it spawns (more info needed)."));
         }
 
         // ### Spawn Group ###

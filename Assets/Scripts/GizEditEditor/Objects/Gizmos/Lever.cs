@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Lever : TTObject
@@ -32,24 +33,18 @@ public class Lever : TTObject
         
     }
 
-    public static readonly string[] StudColors = new string[]
+    public static readonly Dictionary<string, byte> StudColors = new()
     {
-        "None", "Red", "Orange", "Yellow", "Lime", "Green", "Light Blue",
-        "Blue", "Purple", "Brown"
-    };
-
-    public static int GetPickupType(char c) => (c) switch
-    {
-        'r' => 1, 'o' => 2, 'y' => 3, 'l' => 4,
-        'g' => 5, 'u' => 6, 'b' => 7, 'p' => 8, 'w' => 9,
-        _ => 0,
-    };
-
-    public static char GetPickupChar(int n) => (n) switch
-    {
-        1 => 'r', 2 => 'o', 3 => 'y', 4 => 'l', 5 => 'g',
-        6 => 'u', 7 => 'b', 8 => 'p', 9 => 'w',
-        _ => '\0'
+        { "None", 0 },
+        { "Red", (byte)'r' },
+        { "Orange", (byte)'o' },
+        { "Yellow", (byte)'y' },
+        { "Lime", (byte)'l' },
+        { "Green", (byte)'g' },
+        { "Light Blue", (byte)'u' },
+        { "Blue", (byte)'b' },
+        { "Purple", (byte)'p' },
+        { "Brown", (byte)'w' }
     };
 
     public void UpdateHandleColor(int colType)

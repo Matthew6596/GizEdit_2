@@ -17,10 +17,15 @@ public class blowupObjectLoader : PropertyLoader
         blowupObject blowupObj = TTObjectManager.Create<blowupObject>(Name);
 
         // ### Special Object? ###
-        blowupObj.AddProperty(new StringProperty("Special Object?", LoadStr8(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
+        StringProperty specObjProp = new("Special Object?", LoadStr8(bytes, ref index), StringProperty.MaxSize.Byte, "...") { generateOptions = TTProperty.FieldGenerateOptions.Hidden };
+        blowupObj.AddProperty(specObjProp);
 
-        // ### Name? ###
-        blowupObj.AddProperty(new StringProperty("Name?", LoadStr8(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
+        // ### Name ###
+        blowupObj.AddProperty(new StringProperty("Name", LoadStr8(bytes, ref index), StringProperty.MaxSize.Byte, "...", (e) =>
+        {
+            // !! After searching every .giz file, I found that there is no file used in game where "Special Object?" and "Name" are not equal !!
+            specObjProp.Value = e.value.ToString();
+        }));
 
         // ### .par Reference? ###
         // ### .par Reference? ###

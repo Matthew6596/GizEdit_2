@@ -36,8 +36,8 @@ public class LeverLoader : PropertyLoader
         // ### (Handle Studs) Color ###
         lever.AddProperty(new EnumProperty("Handle Color", bytes[index], Lever.StudColors, "The color of the lever handles.", (e) =>
         {
-            lever.UpdateHandleColor((int)e.value);
-        }, 3));
+            lever.UpdateHandleColor((byte)e.value);
+        }, (byte)'y'));
         index++;
 
         // ### Multiple Pulls ###

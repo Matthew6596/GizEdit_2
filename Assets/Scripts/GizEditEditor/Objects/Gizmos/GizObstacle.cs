@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class GizObstacle : TTObject
 {
+    public GameObject renderObj;
+
     private GameObject _boundsCorner;
     public GameObject BoundsCorner
     {

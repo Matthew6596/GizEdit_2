@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HatMachine : TTObject
@@ -17,10 +18,16 @@ public class HatMachine : TTObject
         }
     }
 
-    public static readonly string[] HatTypes = new string[] //Stormtrooper is default
+    public static readonly Dictionary<string, byte> HatTypes = new()
     {
-        "Random", "Leia", "Fedora", "Top Hat", "Baseball Cap", "Stormtrooper", "Bounty Hunter",
-        "Droid Panel",
+        { "Random", 0 },
+        { "Leia", 1 },
+        { "Fedora", 2 },
+        { "Top Hat", 3 },
+        { "Baseball Cap", 4 },
+        { "Stormtrooper", 5 },
+        { "Bounty Hunter", 6 },
+        { "Droid Panel", 7 },
     };
 
     public void UpdateHandleColor(int colType)

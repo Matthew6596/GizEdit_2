@@ -33,7 +33,7 @@ public class PanelLoader : PropertyLoader
         // ### Type ###
         panel.AddProperty(new EnumProperty("Type", bytes[index], Panel.PanelTypes, "", (e) =>
         {
-            panel.UpdatePanelType((int)e.value);
+            panel.UpdatePanelType((byte)e.value);
         }));
         index++;
 

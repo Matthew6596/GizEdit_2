@@ -8,11 +8,11 @@ public class AngleProperty : TTProperty
     private FloatProperty floatField;
     //private RotationGizmo rotGiz;
     private Transform target;
-    public AngleProperty(string name, ushort value, Transform target, string info = "", UnityAction<ChangeEventData> onValueChange = null, long defaultValue = 0) : base(name, defaultValue, ((float)value/(float)ushort.MaxValue)*360, onValueChange, info)
+    public AngleProperty(string name, ushort value, Transform target, string info = "", UnityAction<ChangeEventData> onValueChange = null, long defaultValue = 0) : base(name, defaultValue, value, onValueChange, info)
     {
-        floatField = new(name, (value / (float)ushort.MaxValue)*360, FloatProperty.FloatType.Float, info, (e) =>
+        floatField = new(name, ToFloatAng(value), FloatProperty.FloatType.Float, info, (e) =>
         {
-            Value = e.value.Convert<float>();
+            Value = ToShortAng(e.value.Convert<float>());
         });
         this.target = target;
     }
@@ -29,14 +29,13 @@ public class AngleProperty : TTProperty
 
     public override void RefreshValueDisplays(object value)
     {
-        floatField.RefreshValueDisplays(value);
-        target.rotation = Quaternion.Euler(0, value.Convert<float>(), 0);
+        float angf = ToFloatAng((ushort)value);
+        floatField.RefreshValueDisplays(angf);
+        target.rotation = Quaternion.Euler(0, angf, 0);
     }
 
-    public override IEnumerable<byte> ToBytes()
-    {
-        float fval = Value.Convert<float>();
-        ushort sval = (ushort)((fval / 360) * ushort.MaxValue);
-        return BitConverter.GetBytes(sval);
-    }
+    public override IEnumerable<byte> ToBytes() => BitConverter.GetBytes((ushort)Value);
+
+    private float ToFloatAng(ushort ang) => (ang / 65536f) * 360;
+    private ushort ToShortAng(float ang) => (ushort)((ang / 360f) * 65536f);
 }

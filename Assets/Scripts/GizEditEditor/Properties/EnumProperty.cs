@@ -6,10 +6,10 @@ using UnityEngine.Events;
 
 public class EnumProperty : TTProperty
 {
-    private string[] options;
+    private Dictionary<string, byte> options;
     public TMP_Dropdown input;
 
-    public EnumProperty(string name, int value, string[] options, string info = "", UnityAction<ChangeEventData> onValueChange = null, int defaultValue = 0) : base(name, defaultValue, value, onValueChange, info)
+    public EnumProperty(string name, byte value, Dictionary<string,byte> options, string info = "", UnityAction<ChangeEventData> onValueChange = null, byte defaultValue = 0) : base(name, defaultValue, options.ContainsValue(value) ? value : defaultValue, onValueChange, info)
     {
         this.options = options;
     }
@@ -19,14 +19,20 @@ public class EnumProperty : TTProperty
         var field = EditorUIManager.Instance.CreateLabeledField(parent, name, generateOptions);
         input = EditorUIManager.Instance.CreateDropdown(field, generateOptions, preferredWidth);
         input.options.Clear();
-        input.AddOptions(options.ToList());
-        input.onValueChanged.AddListener((e) => { Value = e.Convert<int>(); });
+        input.AddOptions(options.Keys.ToList());
+        input.onValueChanged.AddListener((e) => { Value = options[input.options[e.Convert<int>()].text]; });
     }
 
     public override void RefreshValueDisplays(object value)
     {
-        if (input != null) input.SetValueWithoutNotify(value.Convert<int>());
+        if (input == null) return;
+
+        byte val = (byte)value;
+        string str = options.Where((o) => o.Value == val).FirstOrDefault().Key;
+        int ind = -1;
+        for(int i=0; i<input.options.Count; i++) if (input.options[i].text == str) { ind = i; break; }
+        input.SetValueWithoutNotify(ind);
     }
 
-    public override IEnumerable<byte> ToBytes() => new byte[] { Value.Convert<byte>() };
+    public override IEnumerable<byte> ToBytes() => new byte[] { (byte)Value };
 }

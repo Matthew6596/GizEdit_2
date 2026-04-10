@@ -13,7 +13,7 @@ public class BombGeneratorSectionLoader : GizmoSectionLoader
         // ### Version ###
         int version = bytes[index];
         index++;
-        section.AddProperty(new IntegerProperty("Version", GetTargetVersion(version), IntegerProperty.IntType.Int, "This is always 1 in Vanilla TCS.") { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
+        section.AddProperty(new IntegerProperty("Version", GetTargetVersion(version), IntegerProperty.IntType.Byte, "This is always 1 in Vanilla TCS.") { generateOptions = TTProperty.FieldGenerateOptions.ReadonlyWName });
 
         // ### Bomb Generator Count ###
         int count = LoadBytes<short, ShortLoader>(bytes, ref index);

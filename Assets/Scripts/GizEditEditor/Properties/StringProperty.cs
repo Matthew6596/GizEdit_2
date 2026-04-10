@@ -36,7 +36,7 @@ public class StringProperty : TTProperty
         int len = val.Length;
         switch (maxSize)
         {
-            case MaxSize.Byte: bytes.Add((byte)val.Length); break;
+            case MaxSize.Byte: bytes.Add((byte)len); break;
             case MaxSize.Short: bytes.AddRange(BitConverter.GetBytes((short)len)); break;
             default: bytes.AddRange(BitConverter.GetBytes(len)); break;
         }

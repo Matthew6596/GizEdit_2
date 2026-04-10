@@ -58,6 +58,7 @@ public class GizmoSectionLoader : PropertyLoader
         }
 
         CurrentLoadingSection = title;
+        if (TTLoader.LogEnabled) Debug.Log($"Loading {CurrentLoadingSection} GizSection...");
         _value = BitConverter.ToInt32(bytes, index);
         index += 4;
         return true;

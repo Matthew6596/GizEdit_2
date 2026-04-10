@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class BoolProperty : TTProperty
 {
     public Toggle input;
+    public byte trueValue=1, falseValue=0;
 
     public BoolProperty(string name, bool value, string info = "", UnityAction<ChangeEventData> onValueChange = null, bool defaultValue = false) : base(name, defaultValue, value, onValueChange, info)
     {
@@ -24,5 +25,5 @@ public class BoolProperty : TTProperty
         if(input != null) input.SetIsOnWithoutNotify(value.Convert<bool>());
     }
 
-    public override IEnumerable<byte> ToBytes() => new byte[] { Value.Convert<bool>() ? (byte)1 : (byte)0 };
+    public override IEnumerable<byte> ToBytes() => new byte[] { Value.Convert<bool>() ? trueValue : falseValue };
 }

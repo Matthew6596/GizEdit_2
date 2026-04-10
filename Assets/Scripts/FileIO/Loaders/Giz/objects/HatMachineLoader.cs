@@ -33,7 +33,7 @@ public class HatMachineLoader : PropertyLoader
         // ### Type ###
         hatMachine.AddProperty(new EnumProperty("Hat Type", bytes[index], HatMachine.HatTypes, "The type of hat given by the hat machine.", (e) =>
         {
-            hatMachine.UpdateHatType((int)e.value);
+            hatMachine.UpdateHatType((byte)e.value);
         }, 5));
         index++;
 
@@ -49,8 +49,8 @@ public class HatMachineLoader : PropertyLoader
             // ## Handle Color ##
             hatMachine.AddProperty(new EnumProperty("Handle Color", col, Lever.StudColors, "The color of the lever handles.", (e) =>
             {
-                hatMachine.UpdateHandleColor((int)e.value);
-            }, 2));
+                hatMachine.UpdateHandleColor((byte)e.value);
+            }, (byte)'y'));
         }
 
         // ### Target Position ###

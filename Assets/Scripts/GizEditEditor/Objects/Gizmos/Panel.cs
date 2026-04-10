@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Panel : TTObject
@@ -17,9 +18,12 @@ public class Panel : TTObject
         }
     }
 
-    public static readonly string[] PanelTypes = new string[]
+    public static readonly Dictionary<string, byte> PanelTypes = new()
     {
-        "Astromech Droid", "Protocol Droid", "Bounty Hunter", "Stormtrooper"
+        { "Astromech Droid", 0 },
+        { "Protocol Droid", 1 },
+        { "Bounty Hunter", 2 },
+        { "Stormtrooper", 3 },
     };
 
     public void UpdatePanelType(int type)

@@ -22,7 +22,7 @@ public class blowupLoader : PropertyLoader
         // ### Name? ###
         string name = "";
         if (version >= 2) name = LoadBytes<string, String8Loader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v >= 2)) blwup.AddProperty(new StringProperty("Name?", name, StringProperty.MaxSize.Byte, "..."));
+        if (ShouldAddProperty(version, v => v >= 2)) blwup.AddProperty(new StringProperty("Name", name, StringProperty.MaxSize.Byte, "..."));
 
         // ### Position ###
         PositionProperty posProp = new("Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), blwup.transform);
@@ -42,7 +42,15 @@ public class blowupLoader : PropertyLoader
         if (version >= 2 && version <= 19) unk4a = LoadBytes<short, ShortLoader>(bytes, ref index);
         else if (version >= 20) unk4a = LoadBytes<int, IntLoader>(bytes, ref index);
         if (ShouldAddProperty(version, v => v >= 2 && v <= 19)) blwup.AddProperty(new IntegerProperty("Unknown 4a", unk4a, IntegerProperty.IntType.Short, "..."));
-        else if (ShouldAddProperty(version, v => v >= 20)) blwup.AddProperty(new IntegerProperty("Unknown 4a", unk4a, IntegerProperty.IntType.Int, "..."));
+        else if (ShouldAddProperty(version, v => v >= 20))
+        {
+            string[] dropOptions = new string[32];
+            for (int i = 0; i < 32; i++) dropOptions[i] = "unkbit";
+            dropOptions[3] = "Proximity Trigger|Blow up when the player enters proximity.";
+            dropOptions[7] = "Can Drop Health?";
+            dropOptions[8] = "Drop Powerup";
+            blwup.AddProperty(new IntBitFlagsProperty("Blowup Behaviors", unk4a, dropOptions, "This value appears to have some effect on the pickups dropped from the blowup. 98437 seems to be studs, 98693 (9th bit) seems to add a powerup, 245897 and 98445 are also used. This appears to be bit flags."));
+        }
 
         // ### Unknown 4b ###
         int unk4b = 0;

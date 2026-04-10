@@ -19,29 +19,30 @@ public class GizmoPickup : TTObject
         
     }
 
-    public static readonly string[] PickupTypes = new string[]
+    public static readonly Dictionary<string, byte> PickupTypes = new()
     {
-        "Silver Stud", "Gold Stud", "Blue Stud", "Purple Stud", "Minikit", "Powerup",
-        "Heart", "Red Brick", "Challenge Minikit", "Torpedo"
+        { "Silver Stud", (byte)'s' },
+        { "Gold Stud", (byte)'g' },
+        { "Blue Stud", (byte)'b' },
+        { "Purple Stud", (byte)'p' },
+        { "Minikit", (byte)'m' },
+        { "Powerup", (byte)'u' },
+        { "Heart", (byte)'h' },
+        { "Red Brick", (byte)'r' },
+        { "Challenge Minikit", (byte)'c' },
+        { "Torpedo", (byte)'t' }
     };
 
-    public static int GetPickupType(char c) => (c) switch
+    public static readonly Dictionary<string, byte> SpawnTypes = new()
     {
-        's' => 0, 'g' => 1, 'b' => 2, 'p' => 3, 'm' => 4,
-        'u' => 5, 'h' => 6, 'r' => 7, 'c' => 8, 't' => 9,
-        _ => 0,
+        { "None", 0 },
+        { "Triggered", 2 },
+        { "Auto-Collect", 6 },
     };
 
-    public static char GetPickupChar(int n) => (n) switch
+    public void UpdateRender(byte typeByte)
     {
-        0 => 's', 1 => 'g', 2 => 'b', 3 => 'p', 4 => 'm',
-        5 => 'u', 6 => 'h', 7 => 'r', 8 => 'c', 9 => 't',
-        _ => 's'
-    };
-
-    public void UpdateRender(int typeInd)
-    {
-        char type = GetPickupChar(typeInd);
+        char type = (char)typeByte;
         string mat = (type) switch
         {
             's' => "silver_stud", 'g'=>"gold_stud",'b'=>"blue_stud", 'p'=>"purple_stud", 'h'=>"heart", 'r'=>"red_brick",

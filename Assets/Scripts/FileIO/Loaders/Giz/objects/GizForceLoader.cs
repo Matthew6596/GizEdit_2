@@ -70,11 +70,21 @@ public class GizForceLoader : PropertyLoader
             force.AddProperty(new IntegerProperty("Unknown 3", unk3, IntegerProperty.IntType.Short));
         }
 
-        // ### Interaction Options? ###
-        force.AddProperty(new IntegerProperty("Interaction Options (?)", LoadBytes<int, IntLoader>(bytes, ref index), IntegerProperty.IntType.Int, "Options for interaction such as Dark Side and whether reset occurs. (Needs further research)."));
+        // ### Interaction Options ###
+        string[] interactOptions = new string[32];
+        for (int i = 0; i < 32; i++) interactOptions[i] = "unkbit";
+        interactOptions[24] = "unkbit 1";
+        interactOptions[25] = "Reset|Returns to original position if not held.";
+        interactOptions[26] = "unkbit 2";
+        interactOptions[27] = "unkbit 3";
+        interactOptions[28] = "Dark Side";
+        interactOptions[29] = "unkbit 4";
+        interactOptions[30] = "unkbit 5";
+        interactOptions[31] = "unkbit 6";
+        force.AddProperty(new IntBitFlagsProperty("Interaction Options", LoadBytes<int, IntLoader>(bytes, ref index), interactOptions, "Options for interaction such as Dark Side and whether reset occurs."));
 
         // ### Togglable ###
-        force.AddProperty(new BoolProperty("Togglable", bytes[index] != 0, "..."));
+        force.AddProperty(new BoolProperty("Togglable", bytes[index] != 0xff, "...") { trueValue=0,falseValue=0xff});
         index++;
 
         // ### Unknown 4 ###
