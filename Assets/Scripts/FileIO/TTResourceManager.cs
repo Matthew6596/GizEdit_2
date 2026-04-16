@@ -40,21 +40,28 @@ public class TTResourceManager : MonoBehaviour
     void Start()
     {
         //Get the path of the lego star wars directory
-        if(!Settings.TryGet("tcs_path", out tcs_path))
-        {
-            string[] paths = new string[0];
-            while(paths.Length == 0) 
-                paths = StandaloneFileBrowser.OpenFolderPanel("Select Lego Star Wars: TCS Folder (folder that contains .exe)", "", false);
+        if(!Settings.TryGet("tcs_path", out tcs_path)) ChooseTCSPath();
 
-            tcs_path = paths[0];
-            Settings.Set("tcs_path", tcs_path);
-            Settings.Save();
-        }
+        AttemptResourceLoad();
+    }
 
+    private void ChooseTCSPath()
+    {
+        string[] paths = new string[0];
+        while (paths.Length == 0)
+            paths = StandaloneFileBrowser.OpenFolderPanel("Select Lego Star Wars: TCS Folder (folder that contains .exe)", "", false);
+
+        tcs_path = paths[0];
+        Settings.Set("tcs_path", tcs_path);
+        Settings.Save();
+    }
+
+    private void AttemptResourceLoad()
+    {
         if (!Directory.Exists(tcs_path))
         {
-            string driveErr = tcs_path.StartsWith("C") ? "":"any external drives needed, ";
-            EditorUIManager.Instance.Err($"Path to Lego Star Wars ({tcs_path}) could not be found. Make sure the path is correct, {driveErr}or update the path in the settings.");
+            string driveErr = tcs_path.StartsWith("C") ? "" : "any external drives needed, ";
+            EditorUIManager.Instance.Err($"Path to Lego Star Wars ({tcs_path}) could not be found. Make sure the path is correct, {driveErr}or update the path in the settings.", null, "Resource Path Error", ("Close", null), ("Choose New Path", () => { ChooseTCSPath(); }), ("Try Load Again", () => { AttemptResourceLoad(); }));
         }
         else
         {

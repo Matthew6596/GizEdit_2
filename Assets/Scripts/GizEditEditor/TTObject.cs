@@ -5,6 +5,8 @@ using UnityEngine;
 
 public abstract class TTObject : MouseInteractable 
 {
+    public static TTObject LastSelectedObject { get; private set; }
+
     public override CursorType CursorType => CursorType.Click;
 
     public TTProperty[] properties;
@@ -25,6 +27,7 @@ public abstract class TTObject : MouseInteractable
 
     public void GeneratePropertyPanel()
     {
+        LastSelectedObject = this;
         EditorGizmoManager.DestroyAllGizmos();
         EditorUIManager.Instance.ClearPropertyPanel();
         Transform propPanel = EditorUIManager.Instance.propertyPanel.contentArea;
@@ -87,6 +90,39 @@ public abstract class TTObject : MouseInteractable
     {
         if (properties == null) properties = new TTProperty[] { prop };
         else properties = properties.Prepend(prop).ToArray();
+    }
+
+    public void InsertProperty(TTProperty prop, int index)
+    {
+        if (properties == null) properties = new TTProperty[] { prop };
+        else
+        {
+            List<TTProperty> props = properties.ToList();
+            props.Insert(index, prop);
+            properties = props.ToArray();
+        }
+    }
+
+    public void InsertPropertyAfter(TTProperty prop, string otherPropName)
+    {
+        if (properties == null) properties = new TTProperty[] { prop };
+        else
+        {
+            int propInd = FindPropertyIndex(otherPropName);
+            if (propInd == -1 || propInd == properties.Length-1) AddProperty(prop);
+            else InsertProperty(prop, propInd+1);
+        }
+    }
+
+    public void InsertPropertyBefore(TTProperty prop, string otherPropName)
+    {
+        if (properties == null) properties = new TTProperty[] { prop };
+        else
+        {
+            int propInd = FindPropertyIndex(otherPropName);
+            if (propInd == -1) PrependProperty(prop);
+            else InsertProperty(prop, propInd);
+        }
     }
 
     public TTProperty FindProperty(string name)

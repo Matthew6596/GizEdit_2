@@ -12,7 +12,7 @@ public class EditorUIManager : MonoBehaviour
 {
     public static EditorUIManager Instance { get; private set; }
 
-    public EditorPanel propertyPanel, progressBar, optionsBar, hierarchyPanel, toolsPanel;
+    public EditorPanel propertyPanel, progressBar, optionsBar, hierarchyPanel, toolsPanel, settingsPanel;
     public Stack<EditorPanel> popupStack;
     public Color32 defaultProgressBarColor = new(0, 255, 0, 255);
     public Color32 errorColor = new(255, 0, 0, 255);
@@ -23,12 +23,14 @@ public class EditorUIManager : MonoBehaviour
     [Header("UI Element Assets")]
     public Sprite inputFieldSprite;
     public Sprite checkmarkSprite, dropArrowSprite, moveGizIcon, whiteSprite, whiteSpriteSliced, trashIcon, plusIcon;
-    public GameObject dropdownPrefab;
+    public GameObject dropdownPrefab, popupWindowPrefab;
+
+    private Canvas canvas;
 
     public Rect ViewportRect { 
         get
         {
-            Rect canvasRect = FindFirstObjectByType<Canvas>().GetComponent<RectTransform>().rect;
+            Rect canvasRect = canvas.GetComponent<RectTransform>().rect;
             float w = canvasRect.width;
             float h = canvasRect.height;
             float t = optionsBar.Rect.rect.height;
@@ -47,6 +49,7 @@ public class EditorUIManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        canvas = FindFirstObjectByType<Canvas>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -76,7 +79,7 @@ public class EditorUIManager : MonoBehaviour
         Debug.Log("Opening panel for " + obj.name);
         propertyPanel.Open();
     }
-    public void ClosePropertyPanel() => propertyPanel.Close();
+    public void ClosePropertyPanel() => propertyPanel.Hide();
     public void ClearPropertyPanel() => propertyPanel.Clear();
 
     public void ShowProgressBar(string title="Progress Bar", string desc="")
@@ -95,27 +98,67 @@ public class EditorUIManager : MonoBehaviour
         bar.SetColor(color ?? defaultProgressBarColor);
         progressBar.FindElement<LabelElement>().label.text = desc;
     }
-    public void CloseProgressBar() => progressBar.Close();
+    public void CloseProgressBar() => progressBar.Hide();
 
-    public void Err(string msg, Exception e=null)
+    public void Err(string msg, Exception e=null, string title = "Error", params (string, Action)[] btns)
     {
         if (e != null) msg += ": " + e;
         Debug.LogError(msg);
         //error popup
+        var popup = CreatePopup(title, msg, btns);
+        var titleEl = popup.transform.GetChild(0).GetChild(0).GetComponent<LabelElement>();
+        titleEl.colorType = EditorColorType.ErrRed;
+        titleEl.ApplyCurrentTheme();
     }
 
-    public void Warn(string msg, Exception e=null)
+    public void Warn(string msg, Exception e=null, string title = "Warning", params (string, Action)[] btns)
     {
         if (e != null) msg += ": " + e;
         Debug.LogWarning(msg);
         //warning popup
+        var popup = CreatePopup(title, msg, btns);
+        var titleEl = popup.transform.GetChild(0).GetChild(0).GetComponent<LabelElement>();
+        titleEl.colorType = EditorColorType.WarnYellow;
+        titleEl.ApplyCurrentTheme();
     }
 
-    public void Inform(string msg)
+    public void Inform(string msg, string title="Info", params (string, Action)[] btns)
     {
         Debug.Log(msg);
         //info popup
+        var popup = CreatePopup(title, msg, btns);
     }
+
+    public EditorPanel CreatePopup(string title, string msg, params (string,Action)[] btns)
+    {
+        if (btns == null || btns.Length == 0) btns = new (string, Action)[] { ("Close", null) };
+
+        EditorPanel popup = Instantiate(popupWindowPrefab, canvas.transform).GetComponent<EditorPanel>();
+        popup.transform.GetChild(0).GetChild(0).GetComponent<LabelElement>().SetText(title);
+
+        Transform content = popup.transform.GetChild(1);
+        content.GetChild(0).GetComponent<LabelElement>().SetText(msg);
+
+        Transform btnsArea = content.GetChild(1);
+        foreach(var btn in btns)
+        {
+            Button button = CreateButton(btnsArea, TTProperty.FieldGenerateOptions.Default, 60);
+            button.GetComponent<LayoutElement>().minWidth = 60;
+            Action btnAction = btn.Item2;
+            button.onClick.AddListener(() => { popup.Close(); btnAction?.Invoke(); });
+            var lbl = button.transform.GetChild(0).GetComponent<LabelElement>();
+            lbl.GetComponent<TMP_Text>().alignment = TextAlignmentOptions.Center;
+            lbl.SetText(btn.Item1);
+            button.transform.SetSiblingIndex(btnsArea.childCount - 2);
+
+            popup.AddChildren(new EditorUIElement[] { lbl, button.GetComponent<ButtonElement>() });
+        }
+
+        popup.ApplyCurrentTheme();
+        return popup;
+    }
+
+    public void PopupTest() => CreatePopup("Test", "This is a test for the popup window.", ("Cancel", () => { }), ("Ok", () => { }));
 
     public T Create<T>(Transform parent=null) where T : EditorUIElement
     {
@@ -338,7 +381,7 @@ public class EditorUIManager : MonoBehaviour
 
     public Button AddMenuOption(string path, Action callback)
     {
-        Warn("Add Menu Option is not implemented yet...");
+        Debug.LogWarning("Add Menu Option is not implemented yet...");
         //throw new NotImplementedException("Add Menu Option not implemented");
         return null;
     }
@@ -800,12 +843,18 @@ public struct EditorTheme
         Theme.Col<LabelElement>(EditorColorType.TextSecondary, 200, 200, 200),
         Theme.Col<LabelElement>(EditorColorType.TextSpecial, 0, 100, 200),
         Theme.Col<ImageElement>(EditorColorType.TextPrimary, 232, 232, 232),
-        Theme.Col<LabelElement>(EditorColorType.WarnYellow, 128, 128, 0),
-        Theme.Col<ImageElement>(EditorColorType.WarnYellow, 200, 200, 0),
-        Theme.Col<ButtonElement>(EditorColorType.WarnYellow, 200, 200, 0),
-        Theme.Col<LabelElement>(EditorColorType.ErrRed, 128, 0, 0),
-        Theme.Col<ImageElement>(EditorColorType.ErrRed, 200, 0, 0),
-        Theme.Col<ButtonElement>(EditorColorType.ErrRed, 200, 0, 0)
+        Theme.Col<LabelElement>(EditorColorType.WarnYellow, 220, 188, 64),
+        Theme.Col<ImageElement>(EditorColorType.WarnYellow, 200, 200, 50),
+        Theme.Col<ButtonElement>(EditorColorType.WarnYellow, 200, 200, 150),
+        Theme.Col<LabelElement>(EditorColorType.ErrRed, 220, 64, 64),
+        Theme.Col<ImageElement>(EditorColorType.ErrRed, 200, 50, 50),
+        Theme.Col<ButtonElement>(EditorColorType.ErrRed, 200, 150, 150),
+        Theme.Col<LabelElement>(EditorColorType.GoodGreen, 64, 220, 64),
+        Theme.Col<ImageElement>(EditorColorType.GoodGreen, 50, 200, 50),
+        Theme.Col<ButtonElement>(EditorColorType.GoodGreen, 150, 200, 150),
+        Theme.Col<LabelElement>(EditorColorType.HelpBlue, 64, 64, 220),
+        Theme.Col<ImageElement>(EditorColorType.HelpBlue, 50, 50, 200),
+        Theme.Col<ButtonElement>(EditorColorType.HelpBlue, 150, 150, 200)
     );
 
     private readonly static Dictionary<string, Theme> Themes = new()

@@ -48,6 +48,7 @@ public class PositionProperty : Vector3Property
         });
         posGiz.transform.SetParent(target);
         posGiz.transform.localPosition = Vector3.zero;
+        posGiz.transform.localEulerAngles = Vector3.zero;
     }
 
     public override void RefreshValueDisplays(object value)

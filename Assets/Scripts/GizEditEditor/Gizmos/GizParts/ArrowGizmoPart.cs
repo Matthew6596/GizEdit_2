@@ -65,6 +65,7 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
 
     private void Update()
     {
+        transform.eulerAngles = Vector3.zero;
         if (!LeftMouseDown && prevMouseDown) prevMouseDown = false;
     }
 

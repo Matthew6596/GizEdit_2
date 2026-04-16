@@ -22,7 +22,15 @@ public class FloatProperty : TTProperty
         input.characterValidation = TMP_InputField.CharacterValidation.Decimal;
         input.onValueChanged.AddListener((e) => 
         {
-            if (double.TryParse(e.ToString(), out double v) && (type==FloatType.Double?v:v.Convert<float>()) != (type==FloatType.Double?Value.Convert<double>() : Value.Convert<float>())) Value = v;
+            if (double.TryParse(e.ToString(), out double v) && (type == FloatType.Double ? v : v.Convert<float>()) != (type == FloatType.Double ? Value.Convert<double>() : Value.Convert<float>()))
+            {
+                SetValueWithoutNotify(v);
+                onValueChanged.Invoke(new(this, v));
+            }
+        });
+        input.onEndEdit.AddListener((e) =>
+        {
+            RefreshValueDisplays(type == FloatType.Double ? Value.Convert<double>() : Value.Convert<float>());
         });
     }
 

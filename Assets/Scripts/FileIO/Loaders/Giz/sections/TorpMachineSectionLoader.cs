@@ -35,7 +35,7 @@ public class TorpMachineSectionLoader : GizmoSectionLoader
         }
 
         // ### Torp Machines ###
-        var childrenProp = ChildrenProperty.Create<GizmoPickup>("Torp Machines", "", "Torp Machine", new TorpMachineLoader(version), new byte[19], bytes, ref index, count, (e) =>
+        var childrenProp = ChildrenProperty.Create<TorpMachine>("Torp Machines", "", "Torp Machine", new TorpMachineLoader(version), new byte[19], bytes, ref index, count, (e) =>
         {
             countProp.Value = (e.value as ChildProperty[]).Length;
         }, TTProperty.FieldGenerateOptions.HiddenWName);

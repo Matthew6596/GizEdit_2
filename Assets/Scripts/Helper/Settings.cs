@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using static UnityEditor.PlayerSettings;
 
 public class Settings : MonoBehaviour
 {
@@ -55,6 +56,7 @@ public class Settings : MonoBehaviour
             List<string> lines = new();
             foreach (var pair in settings) lines.Add($"{pair.Key} = {pair.Value}");
             File.WriteAllLines(FilePath, lines);
+            EditorUIManager.Instance.Inform($"Settings saved successfully at {FilePath}.", "Settings Saved");
         }
         catch (IOException ioe)
         {
@@ -83,12 +85,14 @@ public class Settings : MonoBehaviour
     {
         settingsPanel.Open();
         settingsPanel.Clear();
-        Transform panel = settingsPanel.transform;
+        Transform content = settingsPanel.contentArea;
 
         foreach(var pair in settings)
         {
-            //var lbl = Instantiate(EditorUIManager.Instance.labelPrefab,panel).GetComponent<LabelElement>();
-            //var input = Instantiate(EditorUIManager.Instance.textInputPrefab,panel).GetComponent<TextInputElement>();
+            string key = pair.Key;
+            var inp = EditorUIManager.Instance.CreateLabeledInputField(content, key, TTProperty.FieldGenerateOptions.Default);
+            inp.SetTextWithoutNotify(pair.Value);
+            inp.onValueChanged.AddListener((e) => { Set(key, e); });
         }
     }
 }

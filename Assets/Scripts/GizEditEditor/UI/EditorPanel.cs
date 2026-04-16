@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -67,10 +68,15 @@ public class EditorPanel : EditorUIElement
         gameObject.SetActive(true);
     }
 
-    public void Close()
+    public void Hide()
     {
         //Dont close entire thing, keep top tab like dropdown area (depends on panel type)
         gameObject.SetActive(false);
+    }
+
+    public void Close()
+    {
+        Destroy(gameObject);
     }
 
     public void Clear()
@@ -93,7 +99,14 @@ public class EditorPanel : EditorUIElement
     public override void ApplyCurrentTheme()
     {
         if(TryGetComponent(out Image img)) img.color = EditorTheme.GetColor<ImageElement>(colorType,img.color);
-        //foreach (var child in children) child.ApplyCurrentTheme();
+        foreach (var child in children) if(child!=null) child.ApplyCurrentTheme();
         //foreach (var el in contentArea.GetComponentsInChildren<EditorUIElement>()) el.ApplyCurrentTheme();
+    }
+
+    public void AddChildren(EditorUIElement[] elements)
+    {
+        List<EditorUIElement> list = children.ToList();
+        list.AddRange(elements);
+        children = list.ToArray();
     }
 }

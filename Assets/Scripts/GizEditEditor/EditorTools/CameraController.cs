@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -60,8 +62,25 @@ public class CameraController : MonoBehaviour
         if (InsideViewportOrWindow(mousePos))
         {
             Ray r = cam.ScreenPointToRay(mousePos);
-            if (Physics.Raycast(r, out RaycastHit hit))
+            var hits = Physics.RaycastAll(r);
+
+            if (hits.Length > 0)
             {
+                //Get the nearest hit (prioritize gizmos)
+                RaycastHit hit;
+                var gizHits = hits.Where(h => h.collider.gameObject.GetComponent<EditorGizmoPart>() != null).ToArray();
+                if (gizHits != null && gizHits.Length > 0)
+                {
+                    if (gizHits.Length > 1) Array.Sort(gizHits, (a, b) => a.distance.CompareTo(b.distance));
+                    hit = gizHits[0];
+                }
+                else
+                {
+                    if (hits.Length > 1) Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+                    hit = hits[0];
+                }
+                
+
                 Transform hitParent = hit.transform.parent;
 
                 void SelectHoveredObj(MouseInteractable newObj)
@@ -279,5 +298,22 @@ public class CameraController : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(clickLength);
         potentialClickR = false;
+    }
+
+    public void TeleportToLastSelectedObject()
+    {
+        TTObject tpObj;
+        if (TTObject.LastSelectedObject == null)
+        {
+            var objs = FindObjectsByType<TTObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            tpObj = objs.Where(o=>o.FindProperty("Position")!=null).FirstOrDefault();
+            if(tpObj == null)
+            {
+                EditorUIManager.Instance.Err("Couldn't find any TTObject with 'Position' property to teleport to.", null, "No Object Found");
+                return;
+            }
+        } else tpObj = TTObject.LastSelectedObject;
+
+        transform.position = tpObj.transform.position - cam.transform.forward*5;
     }
 }

@@ -44,12 +44,36 @@ public class blowupLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 2 && v <= 19)) blwup.AddProperty(new IntegerProperty("Unknown 4a", unk4a, IntegerProperty.IntType.Short, "..."));
         else if (ShouldAddProperty(version, v => v >= 20))
         {
+            // ## Blowup Flags ##
             string[] dropOptions = new string[32];
             for (int i = 0; i < 32; i++) dropOptions[i] = "unkbit";
+            dropOptions[0] = "Bricks Drop?";
+            dropOptions[1] = "idk|Usually on thermal";
+            dropOptions[2] = "idk";
             dropOptions[3] = "Proximity Trigger|Blow up when the player enters proximity.";
             dropOptions[7] = "Can Drop Health?";
             dropOptions[8] = "Drop Powerup";
-            blwup.AddProperty(new IntBitFlagsProperty("Blowup Behaviors", unk4a, dropOptions, "This value appears to have some effect on the pickups dropped from the blowup. 98437 seems to be studs, 98693 (9th bit) seems to add a powerup, 245897 and 98445 are also used. This appears to be bit flags."));
+            dropOptions[15] = "Ranged Attackable|Can be destroyed by ranged attacks. Note that some attacks like Jedi Slam count.";
+            dropOptions[16] = "Melee Attackable|Can be destroyed by melee attacks.";
+            dropOptions[21] = "Thermal Sticky?";
+            dropOptions[24] = "Torpedo?";
+            var flagsProp = new IntBitFlagsProperty("Blowup Behaviors", unk4a, dropOptions, "This value appears to have some effect on the pickups dropped from the blowup. 98437 seems to be studs, 98693 (9th bit) seems to add a powerup, 245897 and 98445 are also used. This appears to be bit flags.");
+            blwup.AddProperty(flagsProp);
+
+            // ## Blowup Flags Presets ##
+            blwup.InsertPropertyBefore(new PresetsProperty("Flags Presets", new Dictionary<string, byte> {
+                    { "None", 0 }, { "Default", 1 }, { "Thermal (Metal)", 2 }
+            }, "", (e) =>
+            {
+                switch (e.value.Convert<int>())
+                {
+                    case 1: flagsProp.SetAllFlags(0,2,7,15,16); break;
+                    case 2: flagsProp.SetAllFlags(1,2,21); break;
+                    default: break;
+                }
+            }), flagsProp.name);
+
+            
         }
 
         // ### Unknown 4b ###
@@ -87,19 +111,19 @@ public class blowupLoader : PropertyLoader
             blwup.AddProperty(new IntegerProperty("Unknown 8", unk8, IntegerProperty.IntType.Byte, "..."));
         }
 
-        // ### Unknown 9 ###
-        byte unk9 = 0;
+        // ### Damage ###
+        byte dmg = 0;
         if (version >= 4)
         {
-            unk9 = bytes[index];
+            dmg = bytes[index];
             index++;
         }
-        if (ShouldAddProperty(version, v => v >= 4)) blwup.AddProperty(new IntegerProperty("Unknown 9", unk9, IntegerProperty.IntType.Byte, "..."));
+        if (ShouldAddProperty(version, v => v >= 4)) blwup.AddProperty(new IntegerProperty("Damage", dmg, IntegerProperty.IntType.Byte, "..."));
 
-        // ### Unknown 10 ###
-        float unk10 = 0;
-        if (version >= 6) unk10 = LoadBytes<float, FloatLoader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v >= 6)) blwup.AddProperty(new FloatProperty("Unknown 10", unk10, FloatProperty.FloatType.Float, "..."));
+        // ### Range ###
+        float range = 0;
+        if (version >= 6) range = LoadBytes<float, FloatLoader>(bytes, ref index);
+        if (ShouldAddProperty(version, v => v >= 6)) blwup.AddProperty(new FloatProperty("Range", range, FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 11 ###
         // ### Unknown 12 ###

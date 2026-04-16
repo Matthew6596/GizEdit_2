@@ -1,9 +1,11 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 public class IntBitFlagsProperty : IntegerProperty
 {
-    private BoolProperty[] bitProps;
+    private readonly BoolProperty[] bitProps;
 
     public IntBitFlagsProperty(string name, int value, string[] bitOptions, string info = "", UnityAction<ChangeEventData> onValueChange = null, int defaultValue = 0) : base(name, value, IntType.Int, info, onValueChange, defaultValue)
     {
@@ -55,5 +57,12 @@ public class IntBitFlagsProperty : IntegerProperty
 
             mask <<= 1;
         }
+    }
+
+    public void SetFlag(int index, bool value) => bitProps[index].Value = value;
+
+    public void SetAllFlags(params int[] indicies)
+    {
+        for (int i = 0; i < 32; i++) bitProps[i].Value = indicies.Contains(i);
     }
 }

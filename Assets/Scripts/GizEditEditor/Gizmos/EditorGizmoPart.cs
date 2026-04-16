@@ -2,7 +2,9 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EditorGizmoPart<T> : MouseInteractable
+public abstract class EditorGizmoPart : MouseInteractable { }
+
+public class EditorGizmoPart<T> : EditorGizmoPart
 {
     public override CursorType CursorType => CursorType.Normal;
 
