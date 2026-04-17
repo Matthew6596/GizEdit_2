@@ -32,7 +32,7 @@ public class BombGeneratorLoader : PropertyLoader
         GizSpecialObjectsLoader objsLoader = new();
         objsLoader.Load(bytes, ref index);
         var specialObjs = objsLoader.GetValue<GizSpecialObjects>();
-        bombGen.AddProperty(new ChildProperty("Special Objects", specialObjs, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        bombGen.AddProperty(new ChildProperty("Special Objects", specialObjs, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # Special Objects Editor Nav Buttons #
         specialObjs.PrependProperty(new NavBtnProperty($"<-- Back to BombGenerator", () => { bombGen.GeneratePropertyPanel(); }));

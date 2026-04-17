@@ -4,8 +4,10 @@ using System.Data;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class ChildProperty : TTProperty
+public class ChildProperty : TTProperty, IObjectProperty
 {
+    public Transform Parent { get=>(Value as TTObject).transform.parent; set { (Value as TTObject).transform.parent = value; } }
+
     public ChildProperty(string name, TTObject value, string info = "", UnityAction<ChangeEventData> onValueChange = null, TTObject defaultValue = null) : base(name, defaultValue, value, onValueChange, info)
     {
 
@@ -40,4 +42,8 @@ public class ChildProperty : TTProperty
         if (!IsDefaultNull) base.ResetToDefault();
         foreach (var prop in (Value as TTObject).properties) prop.ResetToDefault();
     }
+
+    public override void Destroy() => (Value as TTObject).Destroy();
+
+    public void ParentObjects(Transform parent) => (Value as TTObject).transform.SetParent(parent);
 }

@@ -39,11 +39,4 @@ public class GizSpecialObjectsLoader : PropertyLoader
 
         _value = specialObjs;
     }
-
-    public GizSpecialObjects LoadDefault()
-    {
-        int tempInd = 0;
-        Load(new byte[] { 3, 0, 0, 0, 0, 0 }, ref tempInd);
-        return GetValue<GizSpecialObjects>();
-    }
 }

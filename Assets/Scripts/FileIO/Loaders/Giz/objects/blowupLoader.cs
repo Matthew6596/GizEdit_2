@@ -47,9 +47,9 @@ public class blowupLoader : PropertyLoader
             // ## Blowup Flags ##
             string[] dropOptions = new string[32];
             for (int i = 0; i < 32; i++) dropOptions[i] = "unkbit";
-            dropOptions[0] = "Bricks Drop?";
+            dropOptions[0] = "idk?";
             dropOptions[1] = "idk|Usually on thermal";
-            dropOptions[2] = "idk";
+            dropOptions[2] = "Collision";
             dropOptions[3] = "Proximity Trigger|Blow up when the player enters proximity.";
             dropOptions[7] = "Can Drop Health?";
             dropOptions[8] = "Drop Powerup";

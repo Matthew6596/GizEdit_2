@@ -131,7 +131,7 @@ public class GizObstacleLoader : PropertyLoader
         });
         objsLoader.Load(bytes, ref index);
         var specialObjs = objsLoader.GetValue<GizSpecialObjects>();
-        obstacle.AddProperty(new ChildProperty("Special Objects", specialObjs, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        obstacle.AddProperty(new ChildProperty("Special Objects", specialObjs, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # Special Objects Editor Nav Buttons #
         specialObjs.PrependProperty(new NavBtnProperty($"<-- Back to GizObstacle", () => { obstacle.GeneratePropertyPanel(); }));

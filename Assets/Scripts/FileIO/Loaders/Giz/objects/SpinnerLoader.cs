@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static Unity.Collections.AllocatorManager;
 
 public class SpinnerLoader : PropertyLoader
 {
@@ -104,7 +103,7 @@ public class SpinnerLoader : PropertyLoader
         GizSpecialObjectsLoader objsLoader = new();
         objsLoader.Load(bytes, ref index);
         var specialObjects = objsLoader.GetValue<GizSpecialObjects>();
-        spinner.AddProperty(new ChildProperty("Special Objects", specialObjects, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        spinner.AddProperty(new ChildProperty("Special Objects", specialObjects, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # Special Objects Editor Nav Buttons #
         specialObjects.PrependProperty(new NavBtnProperty($"<-- Back to Spinner", () => { spinner.GeneratePropertyPanel(); }));

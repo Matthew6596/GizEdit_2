@@ -48,7 +48,7 @@ public class StudBarElement : BarElement
 
     public override void SetFillAmount(float percent)
     {
-        if (TTResourceManager.Loaded)
+        if (TTResourceManager.WorkingGameLoaded)
         {
             int amt = (int)(Mathf.Clamp01(percent)*(progressStuds.Length*9));
             for(int i=0; i<progressStuds.Length; i++)
@@ -66,7 +66,7 @@ public class StudBarElement : BarElement
 
     public override void SetColor(Color col)
     {
-        if (TTResourceManager.Loaded)
+        if (TTResourceManager.WorkingGameLoaded)
         {
 
         }

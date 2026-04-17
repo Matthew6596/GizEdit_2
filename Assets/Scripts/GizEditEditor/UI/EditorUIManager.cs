@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,9 +12,10 @@ public enum LayoutMode { None, Horizontal, Vertical }
 public class EditorUIManager : MonoBehaviour
 {
     public static EditorUIManager Instance { get; private set; }
+    public static bool IsPopupOpen => Instance.popupStack.Count > 0;
 
     public EditorPanel propertyPanel, progressBar, optionsBar, hierarchyPanel, toolsPanel, settingsPanel;
-    public Stack<EditorPanel> popupStack;
+    public Stack<EditorPanel> popupStack = new();
     public Color32 defaultProgressBarColor = new(0, 255, 0, 255);
     public Color32 errorColor = new(255, 0, 0, 255);
     public CursorSet defaultCursors;
@@ -44,7 +46,7 @@ public class EditorUIManager : MonoBehaviour
     }
 
     private Camera cam;
-    private readonly List<HierarchyRoot> hierarchyRoots = new();
+    private readonly List<TTObject> hierarchyRoots = new();
 
     private void Awake()
     {
@@ -145,7 +147,7 @@ public class EditorUIManager : MonoBehaviour
             Button button = CreateButton(btnsArea, TTProperty.FieldGenerateOptions.Default, 60);
             button.GetComponent<LayoutElement>().minWidth = 60;
             Action btnAction = btn.Item2;
-            button.onClick.AddListener(() => { popup.Close(); btnAction?.Invoke(); });
+            button.onClick.AddListener(() => { popup.Close(); popupStack.Pop(); btnAction?.Invoke(); });
             var lbl = button.transform.GetChild(0).GetComponent<LabelElement>();
             lbl.GetComponent<TMP_Text>().alignment = TextAlignmentOptions.Center;
             lbl.SetText(btn.Item1);
@@ -155,6 +157,7 @@ public class EditorUIManager : MonoBehaviour
         }
 
         popup.ApplyCurrentTheme();
+        popupStack.Push(popup);
         return popup;
     }
 
@@ -167,7 +170,7 @@ public class EditorUIManager : MonoBehaviour
         return obj.AddComponent<T>();
     }
 
-    public Button AddObjectToHierarchy(string name, int indent=0, Action onSelect=null, bool collapsible=false, HierarchySection section=null)
+    public Button AddObjectToHierarchy(string name, int indent=0, Action onSelect=null)
     {
         Transform content = CreateContentArea(hierarchyPanel.contentArea, LayoutMode.Horizontal);
 
@@ -190,7 +193,7 @@ public class EditorUIManager : MonoBehaviour
 
         btn.onClick.AddListener(() => { onSelect?.Invoke(); });
 
-        if (collapsible && section != null)
+        /*if (collapsible && section != null)
         {
             //create dropdown button
             Button dropbtn = CreateIconButton(content, dropArrowSprite, TTProperty.FieldGenerateOptions.Default, indentSize);
@@ -204,7 +207,7 @@ public class EditorUIManager : MonoBehaviour
             });
 
             dropbtn.GetComponent<ButtonElement>().ApplyCurrentTheme();
-        }
+        }*/
 
         btn.GetComponent<ButtonElement>().ApplyCurrentTheme();
         lblEl.ApplyCurrentTheme();
@@ -265,15 +268,139 @@ public class EditorUIManager : MonoBehaviour
         }
     }*/
 
-    public void GenerateHierarchyFromRoot(TTObject fileObj, string[] paths)
-    {
-        HierarchyRoot root = new(fileObj, paths);
-        hierarchyRoots.Add(root);
-        GenerateHierarchyFromRoot(root);
+    private readonly Stack<Transform> nodePool = new();
+    private readonly List<Transform> activeNodes = new();
+    private readonly Dictionary<TTObject, bool> collapses = new();
 
+    private Transform CreateHierarchyNode()
+    {
+        // Root node
+        Transform node = CreateContentArea(null, LayoutMode.Vertical, "pooled_node");
+
+        // Header
+        Transform header = CreateContentArea(node, LayoutMode.Horizontal, "header");
+
+        // Button
+        Button btn = CreateButton(header, TTProperty.FieldGenerateOptions.Default, 1000);
+        btn.gameObject.name = "button";
+        btn.GetComponent<LayoutElement>().flexibleWidth = float.MaxValue;
+
+        var txt = btn.transform.GetChild(0).GetComponent<TMP_Text>();
+        txt.alignment = TextAlignmentOptions.Left;
+        txt.margin = new(4, 0, 0, 0);
+
+        // Children container
+        Transform children = CreateContentArea(node, LayoutMode.Vertical, "children");
+
+        // Collapse button
+        Button toggle = CreateIconButton(header, dropArrowSprite, TTProperty.FieldGenerateOptions.Default, indentSize);
+        toggle.gameObject.name = "toggle";
+
+        node.gameObject.SetActive(false);
+        return node;
     }
 
-    private string[] GenerateObjectHierarchy(TTObject obj, int indent, string[] dirs, string[] prevPath, HierarchySection section, int index=0)
+    private Transform GetNode(Transform parent)
+    {
+        Transform node = nodePool.Count > 0 ? nodePool.Pop() : CreateHierarchyNode();
+        node.SetParent(parent, false);
+        node.gameObject.SetActive(true);
+        activeNodes.Add(node);
+
+        return node;
+    }
+
+    public void ClearHierarchyUI()
+    {
+        foreach (var node in activeNodes)
+        {
+            node.gameObject.SetActive(false);
+            nodePool.Push(node);
+        }
+        activeNodes.Clear();
+
+        foreach (var key in collapses.Keys.ToArray()) if (key == null) collapses.Remove(key);
+    }
+
+    public bool HierarchyObjectHasChildren(TTObject obj)
+    {
+        foreach (Transform child in obj.transform)
+        {
+            if (child.TryGetComponent<TTObject>(out var childObj) && childObj.GenerateInHierarchy) return true;
+        }
+        return false;
+    }
+
+    public void GenerateHierarchy(TTObject root, Transform parent)
+    {
+        if (root == null || !root.GenerateInHierarchy || root.gameObject == null) return;
+
+        Transform node = GetNode(parent);
+
+        Transform header = node.Find("header");
+        Transform childrenContainer = node.Find("children");
+
+        Button btn = header.Find("button").GetComponent<Button>();
+        TMP_Text txt = btn.transform.GetChild(0).GetComponent<TMP_Text>();
+        Button toggleBtn = header.Find("toggle").GetComponent<Button>();
+
+        //Reset state
+        btn.onClick.RemoveAllListeners();
+        toggleBtn.onClick.RemoveAllListeners();
+        if(parent != hierarchyPanel.contentArea) parent.GetComponent<LayoutGroup>().padding = new(indentSize, 0, 0, 0);
+
+        //Set name
+        txt.text = root.name;
+        var nameProp = root.FindProperty("Name");
+        nameProp?.onValueChanged.AddListener((e) =>
+        {
+            txt.text = GetStr(e.value.ToString(), $"unnamed_{root.name}");
+        });
+        if(nameProp != null) txt.text = GetStr(nameProp.Value.ToString(), $"unnamed_{root.name}");
+
+        btn.onClick.AddListener(() => root.GeneratePropertyPanel());
+
+        //Toggle collapse
+        toggleBtn.gameObject.SetActive(HierarchyObjectHasChildren(root));
+
+        if (!collapses.ContainsKey(root)) collapses.Add(root, true);
+
+        toggleBtn.onClick.AddListener(() =>
+        {
+            collapses[root] = !collapses[root];
+            childrenContainer.gameObject.SetActive(!collapses[root]);
+        });
+        childrenContainer.gameObject.SetActive(!collapses[root]);
+
+        //Recurse
+        foreach (Transform child in root.transform)
+        {
+            if (child.TryGetComponent<TTObject>(out var childObj)) GenerateHierarchy(childObj, childrenContainer);
+        }
+    }
+
+    public void RefreshHierarchy() => StartCoroutine(RebuildHierarchy());
+
+    IEnumerator RebuildHierarchy()
+    {
+        yield return null;
+        ClearHierarchyUI();
+        foreach (var root in hierarchyRoots) GenerateHierarchy(root, hierarchyPanel.contentArea);
+    }
+
+    public void AddHierarchyRoot(TTObject fileObj)
+    {
+        hierarchyRoots.Add(fileObj);
+        RefreshHierarchy();
+    }
+
+    public void RemoveHierarchyRoot(TTObject obj)
+    {
+        if (hierarchyRoots.Contains(obj)) hierarchyRoots.Remove(obj);
+        RefreshHierarchy();
+    }
+
+    /*private string[] GenerateObjectHierarchy(TTObject obj, int indent, string[] dirs, string[] prevPath, HierarchySection section, int index=0)
     {
         List<string> pathTracker = new();
         for (int i = index; i < dirs.Length; i++)
@@ -361,6 +488,11 @@ public class EditorUIManager : MonoBehaviour
         //ChildProperty --> Create BTN, generates prop panel of TTObject value
         //ChildrenProperty --> Loop each ChildProperty, follow above steps
 
+        if(root.rootObj == null || root.rootObj.gameObject == null)
+        {
+            hierarchyRoots.Remove(root);
+            return;
+        }
         AddObjectToHierarchy(root.rootObj.name, 0, () => { root.rootObj.GeneratePropertyPanel(); }, true, root.section);
 
         string[] prevPath = new string[0];
@@ -373,11 +505,15 @@ public class EditorUIManager : MonoBehaviour
         }
     }
 
-    public void RefreshHierarchy()
+    public void RemoveHierarchyRoot(TTObject obj)
     {
-        hierarchyPanel.Clear();
-        foreach (var root in hierarchyRoots) GenerateHierarchyFromRoot(root);
-    }
+        var root = hierarchyRoots.Where(r => r.rootObj == obj).FirstOrDefault();
+        if (root != null)
+        {
+            hierarchyRoots.Remove(root);
+            RefreshHierarchy();
+        }
+    }*/
 
     public Button AddMenuOption(string path, Action callback)
     {
@@ -394,9 +530,9 @@ public class EditorUIManager : MonoBehaviour
         return obj;
     }
 
-    public Transform CreateContentArea(Transform parent, LayoutMode layout)
+    public Transform CreateContentArea(Transform parent, LayoutMode layout, string name="gameobject")
     {
-        GameObject areaObj = CreateGameObject(parent);
+        GameObject areaObj = CreateGameObject(parent, name);
 
         LayoutGroup layoutGroup = null;
         switch (layout)

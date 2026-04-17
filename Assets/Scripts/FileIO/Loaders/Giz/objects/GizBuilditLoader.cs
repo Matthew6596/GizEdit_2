@@ -32,7 +32,7 @@ public class GizBuilditLoader : PropertyLoader
         GizSpecialObjectsLoader objsLoader = new();
         objsLoader.Load(bytes, ref index);
         var specialObjects = objsLoader.GetValue<GizSpecialObjects>();
-        buildit.AddProperty(new ChildProperty("Special Objects", specialObjects, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        buildit.AddProperty(new ChildProperty("Special Objects", specialObjects, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # Special Objects Editor Nav Buttons #
         specialObjects.PrependProperty(new NavBtnProperty($"<-- Back to GizBuildit", () => { buildit.GeneratePropertyPanel(); }));

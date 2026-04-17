@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
-using static UnityEditor.PlayerSettings;
 
+[DefaultExecutionOrder(-1)]
 public class Settings : MonoBehaviour
 {
+    public static Settings Instance { get; private set; }
+
     public string[] defaultSettings;
     public EditorPanel settingsPanel;
 
@@ -13,6 +15,7 @@ public class Settings : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         FilePath = Path.Combine(Application.persistentDataPath,"settings.txt");
         if(!File.Exists(FilePath)) File.WriteAllLines(FilePath, defaultSettings);
         Load();
@@ -26,7 +29,7 @@ public class Settings : MonoBehaviour
         if (settings.ContainsKey(key))
         {
             value = settings[key];
-            return true;
+            return value != string.Empty;
         }
         
         return false;
@@ -49,18 +52,18 @@ public class Settings : MonoBehaviour
         return v;
     }
 
-    public static void Save()
+    public static void Save(bool silent=false)
     {
         try
         {
             List<string> lines = new();
             foreach (var pair in settings) lines.Add($"{pair.Key} = {pair.Value}");
             File.WriteAllLines(FilePath, lines);
-            EditorUIManager.Instance.Inform($"Settings saved successfully at {FilePath}.", "Settings Saved");
+            if(!silent) EditorUIManager.Instance.Inform($"Settings saved successfully at {FilePath}.", "Settings Saved");
         }
         catch (IOException ioe)
         {
-            EditorUIManager.Instance.Err("Error saving settings",ioe);
+            if(!silent) EditorUIManager.Instance.Err("Error saving settings",ioe);
         }
     }
 
@@ -74,6 +77,19 @@ public class Settings : MonoBehaviour
                 int eqInd = line.IndexOf('=');
                 settings.Add(line[..eqInd].Trim(), line[(eqInd + 1)..].Trim());
             }
+
+            bool defaultAdded = false;
+            foreach (var defaultSetting in Instance.defaultSettings)
+            {
+                int eqInd = defaultSetting.IndexOf('=');
+                string key = defaultSetting[..eqInd].Trim();
+                if (!settings.ContainsKey(key))
+                {
+                    settings.Add(key, defaultSetting[(eqInd + 1)..].Trim());
+                    defaultAdded = true;
+                }
+            }
+            if (defaultAdded) Save(silent: true);
         }
         catch(IOException ioe)
         {

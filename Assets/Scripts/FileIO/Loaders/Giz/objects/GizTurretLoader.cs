@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static Unity.Collections.AllocatorManager;
 
 public class GizTurretLoader : PropertyLoader
 {
@@ -43,7 +42,7 @@ public class GizTurretLoader : PropertyLoader
         });
         objsLoader.Load(bytes, ref index);
         var specialObjects = objsLoader.GetValue<GizSpecialObjects>();
-        turret.AddProperty(new ChildProperty("Special Objects", specialObjects, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        turret.AddProperty(new ChildProperty("Special Objects", specialObjects, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # Special Objects Editor Nav Buttons #
         specialObjects.PrependProperty(new NavBtnProperty($"<-- Back to GizTurret", () => { turret.GeneratePropertyPanel(); }));

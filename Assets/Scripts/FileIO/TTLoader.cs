@@ -21,6 +21,7 @@ public class TTLoader : MonoBehaviour
         return ((!hasTargVers && versionComparison(version)) || (hasTargVers && versionComparison(targVers)));
     }
     public static bool LogEnabled { get; set; }
+    public static bool LoadingPaused { get; set; }
     public static string CurrentLoadingFilePath { get; private set; }
     public static FileDataType CurrentLoadingFileType { get; private set; }
 
@@ -63,7 +64,7 @@ public class TTLoader : MonoBehaviour
 
     private TTFileFormat GetTTFileFormat(string ext, TTGame game) => fileFormats.Where((f) => f.ext == ext && f.game == game).FirstOrDefault();
 
-    private static string[] fileLoadOrder = new string[]
+    private readonly static string[] fileLoadOrder = new string[]
     {
         ".GIZ",""
     };
@@ -77,6 +78,23 @@ public class TTLoader : MonoBehaviour
 
     public static IEnumerator LoadLevel(string directory)
     {
+        TTFileObject[] existingFiles = FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (existingFiles.Length > 0) {
+            bool cancel = false;
+            EditorUIManager.Instance.Warn("Do you want to unload the files currently open?",null,"Unload Current Files?",
+                ("Cancel", () => { cancel = true; }), ("No, Keep Loaded", () => { }), ("Yes, Unload", () => {
+                    foreach(var existingFile in existingFiles)
+                    {
+                        existingFile.Destroy();
+                        EditorUIManager.Instance.RemoveHierarchyRoot(existingFile);
+                    }
+                    EditorUIManager.Instance.ClearPropertyPanel();
+                }
+            ));
+            while (EditorUIManager.IsPopupOpen) yield return null;
+            if (cancel) yield break;
+        }
+
         int loadIndex = 0;
         string levelName = Path.GetFileName(directory);
         //Load all files in dependent order
@@ -142,6 +160,7 @@ public class TTLoader : MonoBehaviour
             yield break;
         }
 
+        LoadingPaused = false;
         //Load with each loader
         int index = 0;
         foreach (var loader in fileFormat.loaders)
@@ -150,9 +169,28 @@ public class TTLoader : MonoBehaviour
             yield return null;
 
             PropertyLoaderFactory.Load(loader, fileFormat.type, fileContents, ref index);
+            while (LoadingPaused) yield return null;
             progress++;
         }
         EditorUIManager.Instance.CloseProgressBar();
+    }
+
+    public static void StartLoadSubroutine(IEnumerator routine)
+    {
+        LoadingPaused = true;
+        Instance.StartCoroutine(routine);
+    }
+
+    public static void EndLoadSubroutine() => LoadingPaused = false;
+    public static Coroutine UpdateLoadProgress(int progress, int total, string msg)
+    {
+        IEnumerator updateLoad()
+        {
+            EditorUIManager.Instance.UpdateProgressBar(progress / (float)total, msg);
+            yield return null;
+        }
+
+        return Instance.StartCoroutine(updateLoad());
     }
 
     public static void Err(string loader,string msg)

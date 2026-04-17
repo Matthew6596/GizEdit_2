@@ -26,46 +26,74 @@ public class TTResourceManager : MonoBehaviour
     private readonly Dictionary<string,ResourceAsset> assets = new();
     private readonly List<string> animatedAssets = new();
 
-    private string tcs_path;
-    private bool _resourcesLoaded;
-    public static bool Loaded => Instance._resourcesLoaded;
+    private readonly Dictionary<TTGame,string> gamePaths = new();
+    private readonly Dictionary<TTGame, bool> _resourcesLoaded = new();
+    public static TTGame WorkingGame { get; set; }
+    public static bool WorkingGameLoaded => Instance._resourcesLoaded[WorkingGame];
     public static UnityEvent OnLoaded = new();
 
     private void Awake()
     {
         Instance = this;
+        foreach (var val in Enum.GetValues(typeof(TTGame))) _resourcesLoaded[(TTGame)val] = false;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //Get the path of the lego star wars directory
-        if(!Settings.TryGet("tcs_path", out tcs_path)) ChooseTCSPath();
-
-        AttemptResourceLoad();
+        StartCoroutine(LoadDataPaths());
+        
     }
 
-    private void ChooseTCSPath()
+    IEnumerator LoadDataPaths()
     {
-        string[] paths = new string[0];
-        while (paths.Length == 0)
-            paths = StandaloneFileBrowser.OpenFolderPanel("Select Lego Star Wars: TCS Folder (folder that contains .exe)", "", false);
+        yield return null;
 
-        tcs_path = paths[0];
-        Settings.Set("tcs_path", tcs_path);
-        Settings.Save();
-    }
-
-    private void AttemptResourceLoad()
-    {
-        if (!Directory.Exists(tcs_path))
+        foreach (var val in Enum.GetValues(typeof(TTGame)))
         {
-            string driveErr = tcs_path.StartsWith("C") ? "" : "any external drives needed, ";
-            EditorUIManager.Instance.Err($"Path to Lego Star Wars ({tcs_path}) could not be found. Make sure the path is correct, {driveErr}or update the path in the settings.", null, "Resource Path Error", ("Close", null), ("Choose New Path", () => { ChooseTCSPath(); }), ("Try Load Again", () => { AttemptResourceLoad(); }));
+            string name = ((TTGame)val).ToString().ToLower();
+            if (Settings.TryGet($"{name}_path", out string game_path)) gamePaths[(TTGame)val] = game_path;
+            else if (!Settings.TryGet($"{name}_path_ask", out string path_ask) || path_ask != "false") ChooseGamePath((TTGame)val);
+            _resourcesLoaded[(TTGame)val] = false;
+
+            while(EditorUIManager.IsPopupOpen) yield return null;
+        }
+
+        AttemptResourceLoad(TTGame.TCS);
+    }
+
+    private void ChooseGamePath(TTGame game)
+    {
+        string gameName = game.ToString().ToLower();
+        string[] paths = new string[0];
+        paths = StandaloneFileBrowser.OpenFolderPanel($"Select {game} Game Folder (folder that contains .exe)", "", false);
+
+        if (paths == null || paths.Length == 0)
+        {
+            bool tryAgain = false;
+            EditorUIManager.Instance.Warn($"No game path for {game} was selected. Until a path is chosen, resources from this game cannot be loaded. Is this ok?", null, "No Game Path", ("No, Select Path", () => { tryAgain = true; }), ("Yes, Continue", () => { }), ("Yes, Don't ask again.", () => { Settings.Set($"{gameName}_path_ask", "false"); Settings.Save(silent:true); }));
+
+            if (tryAgain) ChooseGamePath(game);
+        }
+        else 
+        {
+            gamePaths[game] = paths[0];
+            Settings.Set($"{gameName}_path", gamePaths[game]);
+            Settings.Save();
+        }
+    }
+
+    private void AttemptResourceLoad(TTGame game)
+    {
+        string game_path = gamePaths[game];
+        if (!Directory.Exists(game_path))
+        {
+            string driveErr = game_path.StartsWith("C") ? "" : "any external drives needed, ";
+            EditorUIManager.Instance.Err($"Path to {game} ({game_path}) could not be found. Make sure the path is correct, {driveErr}or update the path in the settings.", null, "Resource Path Error", ("Close", null), ("Choose New Path", () => { ChooseGamePath(game); }), ("Try Load Again", () => { AttemptResourceLoad(game); }));
         }
         else
         {
-            LoadResources();
+            LoadResources(game);
         }
     }
 
@@ -81,21 +109,22 @@ public class TTResourceManager : MonoBehaviour
         foreach (var animAsset in animatedAssets) assets[animAsset].UpdateMaterial();
     }
 
-    public void LoadResources()
+    public void LoadResources(TTGame game)
     {
-        StartCoroutine(LoadResourcesRoutine());
+        StartCoroutine(LoadResourcesRoutine(game));
     }
 
-    IEnumerator LoadResourcesRoutine()
+    IEnumerator LoadResourcesRoutine(TTGame game)
     {
-        EditorUIManager.Instance.ShowProgressBar("Loading Resources", "Loading resource images from Lego Star Wars");
+        string game_path = gamePaths[game];
+        EditorUIManager.Instance.ShowProgressBar("Loading Resources", $"Loading resource images from {game_path}");
         yield return null;
 
         int pathsDone = 0;
 
         foreach (string path in resourcePaths)
         {
-            byte[] bytes = File.ReadAllBytes(Path.Combine(tcs_path, path));
+            byte[] bytes = File.ReadAllBytes(Path.Combine(game_path, path));
             EditorUIManager.Instance.UpdateProgressBar(pathsDone / ((float)resourcePaths.Length), $"Counting resources in {path}...");
             yield return null;
             List<Bitmap> txtrs = new();
@@ -131,17 +160,18 @@ public class TTResourceManager : MonoBehaviour
         }
 
         EditorUIManager.Instance.CloseProgressBar();
-        _resourcesLoaded = true;
+        _resourcesLoaded[game] = true;
+        WorkingGame = game;
         OnLoaded.Invoke();
 
-        EditorUIManager.Instance.ShowProgressBar("Resources Loaded!", "Testing new progress bar...");
+        /*EditorUIManager.Instance.ShowProgressBar("Resources Loaded!", "Testing new progress bar...");
         yield return null;
         for(int i=0; i<100; i++)
         {
             EditorUIManager.Instance.UpdateProgressBar(i / 100f, $"Testing new progress bar {i}/100...");
             yield return null;
         }
-        EditorUIManager.Instance.CloseProgressBar();
+        EditorUIManager.Instance.CloseProgressBar();*/
 
         //TESTING
         /*ShowAllGeneratedAssets();
@@ -160,7 +190,7 @@ public class TTResourceManager : MonoBehaviour
 
     public static Material GetMaterial(string assetName)
     {
-        if(Loaded) return Instance.assets[assetName].GetMaterial();
+        if (WorkingGameLoaded) return Instance.assets[assetName].GetMaterial();
         EditorUIManager.Instance.Err($"Resources not loaded, cannot get material {assetName}");
         return Instance.defaultResourceMaterial;
     }

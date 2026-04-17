@@ -5,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class ChildrenProperty : TTProperty
+public class ChildrenProperty : TTProperty, IObjectProperty
 {
     public PropertyLoader childLoader;
     public byte[] defaultChildBytes;
     public string genericChildName;
 
     private Transform contentArea;
+    private Transform parent;
 
     public ChildrenProperty(string name, ChildProperty[] value, string info = "", UnityAction<ChangeEventData> onValueChange = null, ChildProperty[] defaultValue = null) : base(name, defaultValue, value, onValueChange, info)
     {
@@ -75,18 +76,23 @@ public class ChildrenProperty : TTProperty
     public ChildProperty AddNewChild(int index=-1)
     {
         var list = (Value as ChildProperty[]).ToList();
-        var child = CreateChildProp(childLoader.LoadNewTTObject(defaultChildBytes), index == -1 ? list.Count : index, genericChildName);
+        var childObj = childLoader.LoadNewTTObject(defaultChildBytes);
+        childObj.transform.SetParent(parent);
+        var child = CreateChildProp(childObj, index == -1 ? list.Count : index, genericChildName);
         if (index == -1) list.Add(child);
         else list.Insert(index, child);
         Value = list.ToArray();
+        EditorUIManager.Instance.RefreshHierarchy();
         return child;
     }
 
     public void RemoveChild(int index)
     {
         List<ChildProperty> list = (Value as ChildProperty[]).ToList();
+        list[index].Destroy();
         list.RemoveAt(index);
         Value = list.ToArray();
+        EditorUIManager.Instance.RefreshHierarchy();
     }
 
     public static ChildProperty CreateChildProp(TTObject childObj, int indexId, string childName) => new($"{childName} {indexId}", childObj);
@@ -133,5 +139,16 @@ public class ChildrenProperty : TTProperty
     public override void ResetToDefault()
     {
         
+    }
+
+    public override void Destroy()
+    {
+        foreach (var child in Value as ChildProperty[]) child.Destroy();
+    }
+
+    public void ParentObjects(Transform parent)
+    {
+        this.parent = parent;
+        foreach (var child in Value as ChildProperty[]) ((TTObject)child.Value).transform.SetParent(parent);
     }
 }

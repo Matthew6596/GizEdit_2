@@ -2,26 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class TTObject : MouseInteractable 
 {
     public static TTObject LastSelectedObject { get; private set; }
 
     public override CursorType CursorType => CursorType.Click;
+    public virtual bool GenerateInHierarchy { get; protected set; } = true;
 
     public TTProperty[] properties;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public virtual void InitStaticProperties(){}
 
@@ -43,12 +33,16 @@ public abstract class TTObject : MouseInteractable
 
     public void AddProperty(TTProperty prop)
     {
-        if(properties == null) properties = new TTProperty[] { prop };
+        if (prop is IObjectProperty objProp) objProp.ParentObjects(transform);
+
+        if (properties == null) properties = new TTProperty[] { prop };
         else properties = properties.Append(prop).ToArray();
     }
 
     public void AddProperties(TTProperty[] props)
     {
+        foreach (var prop in props) if (prop is IObjectProperty objProp) objProp.ParentObjects(transform);
+
         if (properties == null)
         {
             properties = new TTProperty[props.Length];
@@ -64,7 +58,9 @@ public abstract class TTObject : MouseInteractable
 
     public void InsertProperties(TTProperty[] props, int index)
     {
-        if(properties == null)
+        foreach(var prop in props) if (prop is IObjectProperty objProp) objProp.ParentObjects(transform);
+
+        if (properties == null)
         {
             properties = new TTProperty[props.Length];
             Array.Copy(props, properties, props.Length);
@@ -88,12 +84,16 @@ public abstract class TTObject : MouseInteractable
 
     public void PrependProperty(TTProperty prop)
     {
+        if (prop is IObjectProperty objProp) objProp.ParentObjects(transform);
+
         if (properties == null) properties = new TTProperty[] { prop };
         else properties = properties.Prepend(prop).ToArray();
     }
 
     public void InsertProperty(TTProperty prop, int index)
     {
+        if (prop is IObjectProperty objProp) objProp.ParentObjects(transform);
+
         if (properties == null) properties = new TTProperty[] { prop };
         else
         {
@@ -105,6 +105,8 @@ public abstract class TTObject : MouseInteractable
 
     public void InsertPropertyAfter(TTProperty prop, string otherPropName)
     {
+        if (prop is IObjectProperty objProp) objProp.ParentObjects(transform);
+
         if (properties == null) properties = new TTProperty[] { prop };
         else
         {
@@ -116,6 +118,8 @@ public abstract class TTObject : MouseInteractable
 
     public void InsertPropertyBefore(TTProperty prop, string otherPropName)
     {
+        if (prop is IObjectProperty objProp) objProp.ParentObjects(transform);
+
         if (properties == null) properties = new TTProperty[] { prop };
         else
         {
@@ -159,5 +163,11 @@ public abstract class TTObject : MouseInteractable
     public override void OnRightClick()
     {
         //generate context menu
+    }
+
+    public void Destroy()
+    {
+        properties = null;
+        Destroy(gameObject);
     }
 }

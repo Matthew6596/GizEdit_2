@@ -25,11 +25,4 @@ public class MiniCutPartsLoader : PropertyLoader
 
         _value = parts;
     }
-
-    public MiniCutParts LoadDefault()
-    {
-        int tempInd = 0;
-        Load(new byte[1], ref tempInd);
-        return GetValue<MiniCutParts>();
-    }
 }

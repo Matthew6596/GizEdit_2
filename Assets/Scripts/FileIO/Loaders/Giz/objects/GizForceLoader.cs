@@ -70,17 +70,17 @@ public class GizForceLoader : PropertyLoader
             force.AddProperty(new IntegerProperty("Unknown 3", unk3, IntegerProperty.IntType.Short));
         }
 
-        // ### Interaction Options ###
+        // ### Force Behaviors ###
         string[] interactOptions = new string[32];
         for (int i = 0; i < 32; i++) interactOptions[i] = "unkbit";
-        interactOptions[1] = "two player force?";
-        interactOptions[2] = "idk";
+        interactOptions[1] = "Resets|When checked, the force will not stop when complete.";
+        interactOptions[2] = "Can Reset Later";
         interactOptions[4] = "Dark Side";
         interactOptions[5] = "idk";
         interactOptions[6] = "Turn on light?";
         interactOptions[10] = "Cannot undo?";
-        interactOptions[11] = "two player force?";
-        force.AddProperty(new IntBitFlagsProperty("Interaction Options", LoadBytes<int, IntLoader>(bytes, ref index), interactOptions, "Options for interaction such as Dark Side and whether reset occurs."));
+        interactOptions[11] = "two player force?|Stack box? but also used for other forces.";
+        force.AddProperty(new IntBitFlagsProperty("Force Behaviors", LoadBytes<int, IntLoader>(bytes, ref index), interactOptions, "Behaviors such as Dark Side or whether reset occurs."));
 
         // ### Togglable ###
         force.AddProperty(new BoolProperty("Togglable", bytes[index] != 0xff, "...") { trueValue=0,falseValue=0xff});
@@ -136,7 +136,7 @@ public class GizForceLoader : PropertyLoader
         });
         objsLoader.Load(bytes, ref index);
         var specialObjects = objsLoader.GetValue<GizSpecialObjects>();
-        force.AddProperty(new ChildProperty("Special Objects", specialObjects, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        force.AddProperty(new ChildProperty("Special Objects", specialObjects, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # Special Objects Editor Nav Buttons #
         specialObjects.PrependProperty(new NavBtnProperty($"<-- Back to GizForce", () => { force.GeneratePropertyPanel(); }));

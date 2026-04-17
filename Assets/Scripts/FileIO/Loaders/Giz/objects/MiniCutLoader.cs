@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class MiniCutLoader : PropertyLoader
@@ -34,7 +33,7 @@ public class MiniCutLoader : PropertyLoader
         MiniCutPartsLoader objsLoader = new();
         objsLoader.Load(bytes, ref index);
         var parts = objsLoader.GetValue<MiniCutParts>();
-        minicut.AddProperty(new ChildProperty("MiniCut Parts", parts, "", (e) => { }, objsLoader.LoadDefault()) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
+        minicut.AddProperty(new ChildProperty("MiniCut Parts", parts, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
         // # MiniCut Parts Editor Nav Buttons #
         parts.PrependProperty(new NavBtnProperty($"<-- Back to MiniCut", () => { minicut.GeneratePropertyPanel(); }));

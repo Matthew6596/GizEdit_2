@@ -1,7 +1,6 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 public class IntBitFlagsProperty : IntegerProperty
 {

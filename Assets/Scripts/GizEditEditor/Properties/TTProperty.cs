@@ -89,4 +89,6 @@ public abstract class TTProperty
     public virtual IEnumerable<byte> ToBytes() { return new byte[0]; }
     public virtual IEnumerable<string> ToLines() { return new string[0]; }
     public virtual string ToText() { return ""; }
+
+    public virtual void Destroy(){}
 }

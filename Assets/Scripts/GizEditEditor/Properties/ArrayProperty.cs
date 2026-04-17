@@ -131,6 +131,11 @@ public class ArrayProperty<P> : TTProperty where P : TTProperty
     {
         
     }
+
+    public override void Destroy()
+    {
+        foreach (var item in Value as P[]) item.Destroy();
+    }
 }
 
 public class ArrayPropItemInfo
