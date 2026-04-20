@@ -31,10 +31,10 @@ public class GizBuilditSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Buildit Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Buildit", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Buildit", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

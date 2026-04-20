@@ -25,9 +25,11 @@ public class EditorUIManager : MonoBehaviour
     [Header("UI Element Assets")]
     public Sprite inputFieldSprite;
     public Sprite checkmarkSprite, dropArrowSprite, moveGizIcon, whiteSprite, whiteSpriteSliced, trashIcon, plusIcon;
-    public GameObject dropdownPrefab, popupWindowPrefab;
+    public GameObject dropdownPrefab, popupWindowPrefab, optionSubMenuPrefab, subOptionButtonPrefab;
 
-    private Canvas canvas;
+    [NonSerialized]
+    public Canvas canvas;
+    public static float CanvasScale => Instance.canvas.transform.localScale.x;
 
     public Rect ViewportRect { 
         get
@@ -67,12 +69,152 @@ public class EditorUIManager : MonoBehaviour
         RefreshTheme();
 
         RefreshViewportRect();
+
+        //Adding Default Menu Options
+        AddMenuOption("File/Load Level", () => { TTLoader.Instance.LoadALevel(); });
+        AddMenuOption("File/Export Level", () => { TTExporter.Instance.Export(); });
+        AddMenuOption("File/Load File", () => { TTLoader.Instance.LoadAFile(); });
+        AddMenuOption("File/Unload All", () => { TTObjectManager.UnloadAll(); });
+        AddMenuOption("Settings", () => { Settings.Instance.LoadMenu(); }, 0);
+        AddMenuOption("Camera/TP to Obj", () => { CameraController.Instance.TeleportToLastSelectedObject(); });
+        AddMenuOption("Camera/TP to 0,0,0", () => { CameraController.Instance.transform.position = Vector3.zero; });
+        AddMenuOption("App/Update", () => { UpdateManager.Instance.CheckLatestVers(); });
+        AddMenuOption("App/Report Bug", () => { UpdateManager.Instance.ReportBug(); });
+        SetOptionPriority("File", -1);
+        SetOptionPriority("App", 2);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public Button AddMenuOption(string path, Action callback, int priority=1)
+    {
+        Transform root = optionsBar.transform;
+        OptionBarButtonElement btn = null;
+
+        string[] btns = path.Split('/');
+        foreach (string p in btns)
+        {
+            if (string.IsNullOrEmpty(p)) continue;
+
+            //Create button for given option
+            btn = FindMenuOption(root, p);
+            if (btn == null)
+            {
+                btn = CreateOptionBarButton(p, root);
+                RefreshOptionsPriorityOrder(root);
+            }
+
+            //Get submenu for that option and continue
+            root = GetOptionButtonSubMenu(btn);
+            root.gameObject.SetActive(true);
+        }
+
+        //Add callback to the last option added
+        btn.btn.onClick.AddListener(() => { callback?.Invoke(); });
+        if (btn.TryGetComponent<LayoutElement>(out var layout)) layout.layoutPriority = priority;
+
+        root = optionsBar.transform;
+        foreach (string p in btns)
+        {
+            if (string.IsNullOrEmpty(p)) continue;
+
+            root = GetOptionButtonSubMenu(FindMenuOption(root, p));
+            root.gameObject.SetActive(false);
+        }
+
+        return btn.btn;
+    }
+
+    public OptionBarButtonElement FindMenuOption(string path)
+    {
+        Transform root = optionsBar.transform;
+        OptionBarButtonElement btn = null;
+        foreach (string p in path.Split('/'))
+        {
+            btn = FindMenuOption(root, p);
+            root = btn.subMenu;
+            if (root == null) break;
+        }
+        return btn;
+    }
+
+    private OptionBarButtonElement FindMenuOption(Transform parent, string name)
+    {
+        foreach(Transform child in parent)
+        {
+            if(child.name == name) return child.GetComponent<OptionBarButtonElement>();
+        }
+        return null;
+    }
+
+    public void SetOptionPriority(string path, int priority)
+    {
+        var btn = FindMenuOption(path);
+        if(btn != null && btn.TryGetComponent<LayoutElement>(out var layout)) layout.layoutPriority = priority;
+        RefreshOptionsPriorityOrder(optionsBar.transform);
+    }
+
+    private Transform[] SortChildren(Transform parent)
+    {
+        List<Transform> children = new();
+        foreach (Transform child in parent) children.Add(child);
+
+        children.Sort((t1,t2) =>
+        {
+            return t1.GetComponent<LayoutElement>().layoutPriority - t2.GetComponent<LayoutElement>().layoutPriority;
+        });
+
+        return children.ToArray();
+    }
+
+    private void RefreshOptionsPriorityOrder(Transform parent)
+    {
+        var children = SortChildren(parent);
+        for(int i=parent.childCount-1; i>=0; i--)
+        {
+            children[i].SetAsFirstSibling();
+        }
+    }
+
+    public Transform GetOptionButtonSubMenu(OptionBarButtonElement parentOption)
+    {
+        if (parentOption == null) return null;
+        if (parentOption.subMenu != null) return parentOption.subMenu;
+
+        //Create sub menu
+        GameObject subMenu = Instantiate(optionSubMenuPrefab, canvas.transform);
+        parentOption.subMenu = subMenu.transform;
+        subMenu.SetActive(true);
+
+        //Position sub menu
+        
+        /*var parentRect = parentOption.GetComponent<RectTransform>();
+        var subRect = subMenu.GetComponent<RectTransform>();
+        
+        Transform parentPanel = parentOption.transform.parent;
+        if (parentPanel != null) LayoutRebuilder.ForceRebuildLayoutImmediate(parentPanel.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(subRect);
+        Rect pRect = parentRect.rect;
+
+        Vector3 offset = parentPanel.GetComponent<HorizontalLayoutGroup>() != null ? new Vector3(0, -pRect.height / 2) : new Vector3(pRect.width, pRect.height / 2);
+        subRect.position = parentRect.position + (offset * canvas.transform.localScale.x);*/
+
+        return parentOption.subMenu;
+    }
+
+    private OptionBarButtonElement CreateOptionBarButton(string name, Transform parent, Action action=null)
+    {
+        GameObject btn = Instantiate(subOptionButtonPrefab, parent);
+        var btnEl = btn.GetComponent<ButtonElement>();
+        btn.name = name;
+        btnEl.SetText(name);
+        if(action != null) btnEl.btn.onClick.AddListener(() => { action.Invoke(); });
+        btnEl.ApplyCurrentTheme();
+        return btn.GetComponent<OptionBarButtonElement>();
     }
 
     public void OpenPropertyPanel(TTObject obj)
@@ -193,80 +335,11 @@ public class EditorUIManager : MonoBehaviour
 
         btn.onClick.AddListener(() => { onSelect?.Invoke(); });
 
-        /*if (collapsible && section != null)
-        {
-            //create dropdown button
-            Button dropbtn = CreateIconButton(content, dropArrowSprite, TTProperty.FieldGenerateOptions.Default, indentSize);
-            dropbtn.GetComponent<LayoutElement>().minWidth = indentSize;
-
-            var droptxt = dropbtn.transform.GetChild(0).GetComponent<TMP_Text>();
-
-            dropbtn.onClick.AddListener(() => 
-            {
-                section.ToggleCollapse();
-            });
-
-            dropbtn.GetComponent<ButtonElement>().ApplyCurrentTheme();
-        }*/
-
         btn.GetComponent<ButtonElement>().ApplyCurrentTheme();
         lblEl.ApplyCurrentTheme();
 
         return btn;
     }
-
-    /*public Button FindHierarchyButton(string path)
-    {
-        string[] btns = path.Split('/');
-        int ind = 0;
-
-        static Transform GetButton(Transform obj, out int indent)
-        {
-            int count = 0;
-            while (count < obj.childCount && obj.GetChild(count).gameObject.name == "indent") count++;
-            indent = count;
-            return obj.GetChild(count);
-        }
-
-        for(int i = hierarchyPanel.contentArea.childCount-1; i>=0; i--)
-        {
-            Transform row = hierarchyPanel.contentArea.GetChild(0);
-            Transform btn = GetButton(row, out int indent);
-            if (indent < ind) return null;
-            if (indent == ind && btn.GetChild(0).GetComponent<TMP_Text>().text == btns[ind])
-            {
-                ind++;
-                if (ind == btns.Length) return btn.GetComponent<Button>();
-            }
-        }
-
-        return null;
-    }
-
-    public void OpenHierarchyPath(string path)
-    {
-        
-    }
-
-    public void CloseHierarchyPath(string path)
-    {
-
-    }
-
-    private void EnsureHierarchyPathExists(string path)
-    {
-        string[] btns = path.Split('/');
-        string p = btns[0];
-        var root = hierarchyRoots.Where(r => r.rootObj.name == btns[0]).FirstOrDefault().rootObj;
-        for(int i=1; i<btns.Length; i++)
-        {
-            Button btn = FindHierarchyButton(p);
-            TTObject obj = root;
-            if (btn == null) btn = AddObjectToHierarchy(btns[i - 1], i - 1, () => { obj.GeneratePropertyPanel(); });
-
-            p += btns[i];
-        }
-    }*/
 
     private readonly Stack<Transform> nodePool = new();
     private readonly List<Transform> activeNodes = new();
@@ -398,128 +471,6 @@ public class EditorUIManager : MonoBehaviour
     {
         if (hierarchyRoots.Contains(obj)) hierarchyRoots.Remove(obj);
         RefreshHierarchy();
-    }
-
-    /*private string[] GenerateObjectHierarchy(TTObject obj, int indent, string[] dirs, string[] prevPath, HierarchySection section, int index=0)
-    {
-        List<string> pathTracker = new();
-        for (int i = index; i < dirs.Length; i++)
-        {
-            string dir = dirs[i];
-
-            //Use previous button/name (already generated)
-            if (dir == "..")
-            {
-                if (i < prevPath.Length)
-                {
-                    pathTracker.Add(prevPath[i]);
-                    indent++;
-                    obj = obj.FindProperty(prevPath[i]).Value as TTObject;
-                    continue;
-                }
-                else break;
-            }
-
-            //Get property and generate button
-            var prop = obj.FindProperty(dir);
-            if (prop == null) break;
-
-            void GenerateChildProp(ChildProperty child, bool collapsible, HierarchySection childSection)
-            {
-                obj = child.Value as TTObject;
-                var childObj = obj;
-                var btn = AddObjectToHierarchy(child.name, indent, () => { childObj.GeneratePropertyPanel(); }, collapsible, collapsible?childSection.subSections[^1]:null);
-                var nameProp = childObj.FindProperty("Name");
-                nameProp?.onValueChanged.AddListener((e) =>
-                {
-                    string newName = e.value.ToString();
-                    btn.transform.GetChild(0).GetComponent<TMP_Text>().text = GetStr(newName, $"unnamed_{childObj.name}");
-                });
-                childSection.AddField(btn.transform.parent.gameObject);
-            }
-
-            if (prop is ChildProperty child)
-            {
-                bool collapsible = false;
-                HierarchySection subSection = new(true);
-                if(i+1 < dirs.Length)
-                {
-                    var nextProp = (child.Value as TTObject).FindProperty(dirs[i + 1]);
-                    collapsible = (nextProp != null && nextProp is ChildrenProperty);
-                    if (collapsible) section.AddSubSection(subSection);
-                }
-                GenerateChildProp(child,collapsible,section);
-
-                indent++;
-                pathTracker.Add(prop.name);
-                continue;
-            }
-            else if (prop is ChildrenProperty children)
-            {
-                foreach (var c in children.Value as ChildProperty[])
-                {
-                    GenerateChildProp(c, false, section.subSections[^1]);
-                    GenerateObjectHierarchy(c.Value as TTObject, indent + 1, dirs, prevPath.Append(prop.name).ToArray(), section.subSections[^1], i + 1);
-                }
-                pathTracker.Add(prop.name);
-                break;
-            }
-            else break;
-        }
-
-        return pathTracker.ToArray();
-    }
-
-    private void GenerateHierarchyFromRoot(HierarchyRoot root)
-    {
-        //GIZ File [V]
-        //   +--Gizmo Section 1 [V]
-        //   |     +--Object 1 [V]
-        //   |     |     +--Special Object 1
-        //   |     +--Object 2
-        //   +--Gizmo Section 2 [V]
-        //         +--Object 1
-        //         +--Object 2 [V]
-        //               +--Special Object 1
-
-        //Gizmos, GizBuildit Section, GizBuildits, Special Objects, Special Objects
-        //.. --> Increase Indent (starts same as previous route)
-        //TTObject --> Create BTN, generates prop panel
-        //ChildProperty --> Create BTN, generates prop panel of TTObject value
-        //ChildrenProperty --> Loop each ChildProperty, follow above steps
-
-        if(root.rootObj == null || root.rootObj.gameObject == null)
-        {
-            hierarchyRoots.Remove(root);
-            return;
-        }
-        AddObjectToHierarchy(root.rootObj.name, 0, () => { root.rootObj.GeneratePropertyPanel(); }, true, root.section);
-
-        string[] prevPath = new string[0];
-        TTObject currObj = root.rootObj;
-        foreach(var path in root.paths)
-        {
-            int indent = 1;
-            string[] dirs = path.Split("/");
-            prevPath = GenerateObjectHierarchy(currObj, indent, dirs, prevPath, root.section);
-        }
-    }
-
-    public void RemoveHierarchyRoot(TTObject obj)
-    {
-        var root = hierarchyRoots.Where(r => r.rootObj == obj).FirstOrDefault();
-        if (root != null)
-        {
-            hierarchyRoots.Remove(root);
-            RefreshHierarchy();
-        }
-    }*/
-
-    public Button AddMenuOption(string path, Action callback)
-    {
-        Debug.LogWarning("Add Menu Option is not implemented yet...");
-        //throw new NotImplementedException("Add Menu Option not implemented");
-        return null;
     }
 
     public GameObject CreateGameObject(Transform parent, string name="gameobject")

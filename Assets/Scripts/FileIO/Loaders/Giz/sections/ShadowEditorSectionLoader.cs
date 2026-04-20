@@ -29,10 +29,10 @@ public class ShadowEditorSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # ShadowEditor Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New ShadowEditor", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New ShadowEditor", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

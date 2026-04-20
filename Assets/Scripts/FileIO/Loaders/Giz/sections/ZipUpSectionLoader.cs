@@ -28,10 +28,10 @@ public class ZipUpSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # ZipUp Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New ZipUp", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New ZipUp", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

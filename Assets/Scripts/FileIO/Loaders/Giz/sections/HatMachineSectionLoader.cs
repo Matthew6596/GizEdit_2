@@ -27,10 +27,10 @@ public class HatMachineSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Hat Machine Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Hat Machine", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Hat Machine", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

@@ -76,6 +76,13 @@ public class TTLoader : MonoBehaviour
         StartCoroutine(LoadLevel(res[0]));
     }
 
+    public void LoadAFile()
+    {
+        string[] res = SFB.StandaloneFileBrowser.OpenFilePanel("Select a level", Settings.Get("tcs_path"), new SFB.ExtensionFilter[] { new("Any", "*") },false);
+        if (res.Length == 0) return;
+        StartCoroutine(LoadFile(res[0], () => { TTObjectManager.InitializeAllProperties(); }));
+    }
+
     public static IEnumerator LoadLevel(string directory)
     {
         TTFileObject[] existingFiles = FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);

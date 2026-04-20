@@ -27,10 +27,10 @@ public class SpinnerSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Spinner Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Spinner", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Spinner", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

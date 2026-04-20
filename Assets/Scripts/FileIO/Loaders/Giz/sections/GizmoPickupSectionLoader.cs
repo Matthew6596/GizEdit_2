@@ -1,4 +1,6 @@
 
+using static System.Collections.Specialized.BitVector32;
+
 public class GizmoPickupSectionLoader : GizmoSectionLoader
 {
     public override string Name => "GizmoPickup Section";
@@ -58,10 +60,10 @@ public class GizmoPickupSectionLoader : GizmoSectionLoader
         pickupSection.AddProperty(childrenProp);
 
         // # Pickup Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Pickup", () =>
+        pickupSection.AddProperty(new EditOptionProperty("Gizmos/Create/New Pickup", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = pickupSection;
     }

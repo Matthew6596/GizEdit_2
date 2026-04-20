@@ -65,4 +65,10 @@ public class TTObjectManager : MonoBehaviour
 
         return ttobj;
     }
+
+    public static void UnloadAll()
+    {
+        foreach(var fileObj in GameObject.FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None)) fileObj.Destroy();
+        EditorUIManager.Instance.RefreshHierarchy();
+    }
 }

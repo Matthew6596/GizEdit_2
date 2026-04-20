@@ -27,10 +27,10 @@ public class PanelSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Panel Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Panel", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Panel", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

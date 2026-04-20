@@ -42,10 +42,10 @@ public class TorpMachineSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Torp Machine Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Torp Machine", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Torp Machine", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

@@ -28,10 +28,10 @@ public class LeverSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Lever Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Lever", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Lever", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

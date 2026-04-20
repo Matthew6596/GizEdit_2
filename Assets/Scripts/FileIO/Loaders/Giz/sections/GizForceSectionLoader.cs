@@ -35,10 +35,10 @@ public class GizForceSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Force Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Force", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Force", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

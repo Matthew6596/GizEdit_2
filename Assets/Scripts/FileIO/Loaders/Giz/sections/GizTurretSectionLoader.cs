@@ -30,10 +30,10 @@ public class GizTurretSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Force Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Turret", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Turret", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

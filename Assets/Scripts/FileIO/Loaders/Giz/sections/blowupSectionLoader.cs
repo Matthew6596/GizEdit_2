@@ -46,10 +46,10 @@ public class blowupSectionLoader : GizmoSectionLoader
             section.AddProperty(objChildrenProp);
 
             // # blowupObject Menu Options #
-            EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Blowup Object", () =>
+            section.AddProperty(new EditOptionProperty("Gizmos/Create/New Blowup Object", () =>
             {
                 (objChildrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-            });
+            }));
         }
 
         // ### blowups ###
@@ -60,10 +60,10 @@ public class blowupSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # blowup Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Blowup", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Blowup", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

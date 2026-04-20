@@ -27,10 +27,10 @@ public class PushBlocksSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # PushBlocks Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New PushBlocks", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New PushBlocks", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

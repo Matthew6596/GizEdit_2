@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour
 {
+    public static CameraController Instance { get; private set; }
+
     public float acceleration=10, friction=0.9f;
     public float clickLength = 0.35f, cameraSensitivity = 0.2f;
     public float scrollSensitivity = 0.1f;
@@ -22,6 +24,11 @@ public class CameraController : MonoBehaviour
     private Rect viewportRect;
 
     private Camera cam;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

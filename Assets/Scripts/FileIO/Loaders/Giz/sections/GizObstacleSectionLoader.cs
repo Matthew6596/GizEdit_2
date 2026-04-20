@@ -28,10 +28,10 @@ public class GizObstacleSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # GizObstacle Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New GizObstacle", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New GizObstacle", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

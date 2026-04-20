@@ -28,10 +28,10 @@ public class BombGeneratorSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Bomb Generator Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Bomb Generator", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Bomb Generator", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

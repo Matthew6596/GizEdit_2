@@ -27,10 +27,10 @@ public class MiniCutSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Spinner Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New MiniCut", () =>
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New MiniCut", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

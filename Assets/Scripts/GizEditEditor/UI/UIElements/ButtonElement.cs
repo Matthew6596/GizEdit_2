@@ -55,6 +55,8 @@ public class ButtonElement : EditorUIElement, IScrollHandler
         btnTxt.fontSize = EditorTheme.GetFontSize(EditorFontType.Label);
     }
 
+    public void SetText(string text) => btn.transform.GetChild(0).GetComponent<TMP_Text>().text = text;
+
     public void OnScroll(PointerEventData eventData)
     {
         Transform parent = transform;

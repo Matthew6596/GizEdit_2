@@ -28,10 +28,10 @@ public class TubeSectionLoader : GizmoSectionLoader
         section.AddProperty(childrenProp);
 
         // # Tube Menu Options #
-        EditorUIManager.Instance.AddMenuOption("Gizmos/Create/New Tube", () => 
+        section.AddProperty(new EditOptionProperty("Gizmos/Create/New Tube", () =>
         {
             (childrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
-        });
+        }));
 
         _value = section;
     }

@@ -5,7 +5,14 @@ using UnityEngine.Networking;
 
 public class UpdateManager : MonoBehaviour
 {
+    public static UpdateManager Instance { get; private set; }
+
     const string repoUrl = "https://github.com/Matthew6596/GizEdit_2";
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
