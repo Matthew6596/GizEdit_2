@@ -28,15 +28,12 @@ public class PositionProperty : Vector3Property
             var posGizBtn = EditorUIManager.Instance.CreateIconButton(fieldTransform, EditorUIManager.Instance.moveGizIcon, generateOptions, 14);
             posGizBtn.onClick.AddListener(() =>
             {
-                EditorGizmoManager.DestroyAllGizmos();
-
-                if (lowPriorityGizActive) primaryPosProperty.CreatePositionGizmo();
-                else CreatePositionGizmo();
+                EditorGizmoManager.EditState = lowPriorityGizActive ? "Move" : "SecondaryMove";
 
                 lowPriorityGizActive = !lowPriorityGizActive;
             });
         }
-        else CreatePositionGizmo();
+        CreatePositionGizmo();
     }
 
     public void CreatePositionGizmo()
@@ -46,6 +43,7 @@ public class PositionProperty : Vector3Property
         {
             Value = target.parent == null ? (Vector3)e : target.parent.InverseTransformPoint((Vector3)e);
         });
+        posGiz.SetEditStates(isSecondaryPosGiz ? "SecondaryMove" : "Move");
         posGiz.transform.SetParent(target);
         posGiz.transform.localPosition = Vector3.zero;
         posGiz.transform.localEulerAngles = Vector3.zero;

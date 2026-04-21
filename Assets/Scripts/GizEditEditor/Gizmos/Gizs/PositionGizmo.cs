@@ -16,16 +16,19 @@ public class PositionGizmo : EditorGizmo
     {
         Vector3 initPos = GetValue<Vector3>();
 
+        xzPlane = CreateGizmoPart<PlaneGizmoPart, Vector2>(new(initPos.x, initPos.z));
+        xzPlane.Set(new Vector3(1, 0, 1), Color.green);
+        xyPlane = CreateGizmoPart<PlaneGizmoPart, Vector2>(new(initPos.x, initPos.y));
+        xyPlane.Set(new Vector3(1, 1, 0), Color.blue);
+        yzPlane = CreateGizmoPart<PlaneGizmoPart, Vector2>(new(initPos.y, initPos.z));
+        yzPlane.Set(new Vector3(0, 1, 1), Color.red);
+
         xArrow = CreateGizmoPart<ArrowGizmoPart, float>(initPos.x);
         xArrow.Set(Vector3.right, Color.red);
         yArrow = CreateGizmoPart<ArrowGizmoPart, float>(initPos.y);
         yArrow.Set(Vector3.up, Color.green);
         zArrow = CreateGizmoPart<ArrowGizmoPart, float>(initPos.z);
         zArrow.Set(Vector3.forward, Color.blue);
-
-        xzPlane = CreateGizmoPart<PlaneGizmoPart, Vector2>(new(initPos.x, initPos.z));
-        xyPlane = CreateGizmoPart<PlaneGizmoPart, Vector2>(new(initPos.x, initPos.y));
-        yzPlane = CreateGizmoPart<PlaneGizmoPart, Vector2>(new(initPos.y, initPos.z));
 
         xArrow.OnValueChange.AddListener((e) => { UpdatePos(new(e, 0, 0), new(0, 1, 1)); });
         yArrow.OnValueChange.AddListener((e) => { UpdatePos(new(0, e, 0), new(1, 0, 1)); });

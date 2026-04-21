@@ -7,6 +7,39 @@ public class EditorGizmoManager : MonoBehaviour
 {
     public static EditorGizmoManager Instance { get; private set; }
 
+    private static ButtonElement prevBtn;
+
+    private static string _editState;
+    public static string EditState { get=>_editState; set { 
+            _editState = value.ToUpper();
+            RefreshGizmosVisibility();
+
+            //Button colors
+            if(prevBtn != null)
+            {
+                prevBtn.colorType = EditorColorType.WindowPrimary;
+                prevBtn.ApplyCurrentTheme();
+            }
+            var btn = EditorUIManager.Instance.FindEditorTool(_editState);
+            if (btn != null)
+            {
+                btn.colorType = EditorColorType.GoodGreen;
+                btn.ApplyCurrentTheme();
+                prevBtn = btn;
+            }
+
+            onEditStateChange.Invoke(_editState);
+            return; 
+        }
+    }
+    public static UnityEvent<string> onEditStateChange = new();
+    public static bool IsEditState(string state) => EditState == state.ToUpper();
+    public static bool IsEditState(params string[] states)
+    {
+        foreach(string state in states) if(IsEditState(state)) return true;
+        return false;
+    }
+
     private readonly static List<EditorGizmo> gizmos = new();
 
     private void Awake()
@@ -17,7 +50,10 @@ public class EditorGizmoManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        EditorUIManager.Instance.AddEditorTool("Move", () => { EditState = "Move"; }, -1);
+        EditorUIManager.Instance.AddEditorTool("Rotate", () => { EditState = "Rotate"; }, -1);
+        EditorUIManager.Instance.AddEditorTool("Scale", () => { EditState = "Scale"; }, -1);
+        EditState = "MOVE";
     }
 
     // Update is called once per frame
@@ -42,6 +78,15 @@ public class EditorGizmoManager : MonoBehaviour
         {
             Destroy(gizmos[i].gameObject);
             gizmos.RemoveAt(i);
+        }
+    }
+
+    public static void RefreshGizmosVisibility()
+    {
+        for (int i = gizmos.Count - 1; i >= 0; i--)
+        {
+            if (IsEditState(gizmos[i].validStates)) gizmos[i].Show();
+            else gizmos[i].Hide();
         }
     }
 }

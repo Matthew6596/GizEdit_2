@@ -6,7 +6,7 @@ using UnityEngine.Events;
 public class AngleProperty : TTProperty
 {
     private FloatProperty floatField;
-    //private RotationGizmo rotGiz;
+    private AngleGizmo rotGiz;
     private Transform target;
     private bool refreshFloatField = true;
     public AngleProperty(string name, ushort value, Transform target, string info = "", UnityAction<ChangeEventData> onValueChange = null, long defaultValue = 0) : base(name, defaultValue, value, onValueChange, info)
@@ -27,9 +27,14 @@ public class AngleProperty : TTProperty
         floatField.input.onEndEdit.AddListener((e) => { RefreshValueDisplays(Value); });
 
         //generate rotation gizmo
-        //rotGiz = EditorGizmoManager.Create<RotationGizmo>(Value.Convert<float>(), (e) => { Value = e.Convert<float>(); });
-        //rotGiz.transform.SetParent(target);
-        //rotGiz.transform.localEulerAngles = Vector3.zero;
+        rotGiz = EditorGizmoManager.Create<AngleGizmo>(ToFloatAng(Value.Convert<ushort>()), (e) => 
+        { 
+            Value = ToShortAng(e.Convert<float>());
+        });
+        rotGiz.SetEditStates("Rotate");
+        rotGiz.transform.SetParent(target);
+        rotGiz.transform.localPosition = Vector3.zero;
+        rotGiz.transform.localEulerAngles = Vector3.zero;
     }
 
     public override void RefreshValueDisplays(object value)
@@ -37,6 +42,7 @@ public class AngleProperty : TTProperty
         float angf = ToFloatAng(value.Convert<ushort>());
         if(refreshFloatField) floatField.RefreshValueDisplays(angf);
         target.rotation = Quaternion.Euler(0, angf, 0);
+        if (rotGiz != null) rotGiz.RefreshValues();
     }
 
     public override IEnumerable<byte> ToBytes() => BitConverter.GetBytes(Value.Convert<ushort>());

@@ -72,7 +72,7 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
     public void Set(Vector3 vec, Color col)
     {
         vector = vec;
-        color = col;
+        color = new(col.r, col.g, col.b, 0.5f);
     }
 
     static void CreateLineMaterial()
@@ -88,8 +88,9 @@ public class ArrowGizmoPart : EditorGizmoPart<float>
             lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
             // Turn backface culling off
             lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-            // Turn off depth writes
+
             lineMaterial.SetInt("_ZWrite", 0);
+            lineMaterial.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
         }
     }
 

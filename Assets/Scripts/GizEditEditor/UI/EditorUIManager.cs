@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 public enum LayoutMode { None, Horizontal, Vertical }
 
+[DefaultExecutionOrder(-1)]
 public class EditorUIManager : MonoBehaviour
 {
     public static EditorUIManager Instance { get; private set; }
@@ -88,6 +89,32 @@ public class EditorUIManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public Button AddEditorTool(string lbl, Action callback, int priority = 1)
+    {
+        var btnEl = CreateButton(toolsPanel.contentArea, TTProperty.FieldGenerateOptions.Default, 60).GetComponent<ButtonElement>();
+        btnEl.transform.GetChild(0).GetComponent<TMP_Text>().alignment = TextAlignmentOptions.Center;
+        btnEl.SetText(lbl);
+        btnEl.btn.onClick.AddListener(() => { callback?.Invoke(); });
+        btnEl.gameObject.name = lbl.ToLower()+"_tool";
+        return btnEl.btn;
+    }
+
+    public ButtonElement FindEditorTool(string name)
+    {
+        name = name.ToLower()+"_tool";
+        foreach (Transform child in toolsPanel.contentArea)
+        {
+            if (child.name == name) return child.GetComponent<ButtonElement>();
+        }
+        return null;
+    }
+
+    public void RemoveEditorTool(string name)
+    {
+        ButtonElement btn = FindEditorTool(name);
+        if(btn != null) Destroy(btn.gameObject);
     }
 
     public Button AddMenuOption(string path, Action callback, int priority=1)

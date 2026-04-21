@@ -3979,8 +3979,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2006643277}
   m_HandleRect: {fileID: 2006643276}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: -0.0000029024977
+  m_Size: 0.89545494
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4127,6 +4127,7 @@ GameObject:
   m_Component:
   - component: {fileID: 459224688}
   - component: {fileID: 459224689}
+  - component: {fileID: 459224690}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -4150,7 +4151,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000023473818, y: 0.0000039487945}
+  m_AnchoredPosition: {x: 0.000023473818, y: 0.00004586503}
   m_SizeDelta: {x: 0, y: 73}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &459224689
@@ -4167,6 +4168,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 2
   m_VerticalFit: 0
+--- !u!114 &459224690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 459224687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 2
+    m_Right: 2
+    m_Top: 2
+    m_Bottom: 2
+  m_ChildAlignment: 0
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 40, y: 20}
+  m_Spacing: {x: 2, y: 2}
+  m_Constraint: 0
+  m_ConstraintCount: 2
 --- !u!224 &493568943 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8518576324804243165, guid: f32c9be8789d0b342bfbbca9927d2ba1, type: 3}
@@ -7631,6 +7656,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1036357608}
   - component: {fileID: 1036357607}
+  - component: {fileID: 1036357609}
   m_Layer: 0
   m_Name: TTObjectManager
   m_TagString: Untagged
@@ -7671,6 +7697,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1036357609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036357606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8acfd7205bdb2f2468ccc753a5ac16a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EditorGizmoManager
 --- !u!1 &1049595435
 GameObject:
   m_ObjectHideFlags: 0
@@ -10093,7 +10131,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1013157993}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9996525
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
