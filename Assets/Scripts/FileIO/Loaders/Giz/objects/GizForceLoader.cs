@@ -37,8 +37,8 @@ public class GizForceLoader : PropertyLoader
             force.AddProperty(new Vector3Property("Unknown 1", unk1));
         }
 
-        // ### Reset Time ###
-        force.AddProperty(new FloatProperty("Reset Time", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "The amount of time for the GizForce to reset."));
+        // ### Return Time ###
+        force.AddProperty(new FloatProperty("Return Time", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "The amount of time for the GizForce to return to its original position."));
 
         // ### Shake Time ###
         float shakeTime = 0;
@@ -73,8 +73,8 @@ public class GizForceLoader : PropertyLoader
         // ### Force Behaviors ###
         string[] interactOptions = new string[32];
         for (int i = 0; i < 32; i++) interactOptions[i] = "unkbit";
-        interactOptions[1] = "Resets|When checked, the force will not stop when complete.";
-        interactOptions[2] = "Can Reset Later";
+        interactOptions[1] = "Returns|When checked, the force will not stop when complete.";
+        interactOptions[2] = "Can Return Later";
         interactOptions[4] = "Dark Side";
         interactOptions[5] = "idk";
         interactOptions[6] = "Turn on light?";
@@ -147,8 +147,8 @@ public class GizForceLoader : PropertyLoader
         // ### Force Speed ###
         force.AddProperty(new FloatProperty("Force Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
 
-        // ### Reset Speed ###
-        force.AddProperty(new FloatProperty("Reset Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
+        // ### Return Speed ###
+        force.AddProperty(new FloatProperty("Return Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
 
         // ### Auto Force? ###
         float autoForce = 0;
@@ -237,7 +237,7 @@ public class GizForceLoader : PropertyLoader
 
         // ### Process Sound ###
         // ### Complete Sound ###
-        // ### Reset Sound ###
+        // ### Return Sound ###
         string procSfx = "", doneSfx = "", resetSfx = "";
         if (version >= 15)
         {
@@ -248,13 +248,13 @@ public class GizForceLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 15))
         {
             // ## Process Sound ##
-            force.AddProperty(new StringProperty("Process Sound", procSfx, StringProperty.MaxSize.Byte, "The sound played as the force is being activated/forced."));
+            force.AddProperty(new StringProperty("Process Sound", procSfx, StringProperty.MaxSize.Byte, "The sound played as the force is being processed (forced/used)."));
 
             // ## Complete Sound ##
-            force.AddProperty(new StringProperty("Complete Sound", doneSfx, StringProperty.MaxSize.Byte, "The sound played when the force is completed/activated."));
+            force.AddProperty(new StringProperty("Complete Sound", doneSfx, StringProperty.MaxSize.Byte, "The sound played when the force is completed."));
 
-            // ## Reset Sound ##
-            force.AddProperty(new StringProperty("Reset Sound", resetSfx, StringProperty.MaxSize.Byte, "The sound played as the force is resetting."));
+            // ## Return Sound ##
+            force.AddProperty(new StringProperty("Return Sound", resetSfx, StringProperty.MaxSize.Byte, "The sound played as the force is returning."));
         }
 
         _value = force;

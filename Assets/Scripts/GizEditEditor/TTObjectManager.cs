@@ -70,5 +70,6 @@ public class TTObjectManager : MonoBehaviour
     {
         foreach(var fileObj in GameObject.FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None)) fileObj.Destroy();
         EditorUIManager.Instance.RefreshHierarchy();
+        EditorUIManager.Instance.ClearPropertyPanel();
     }
 }
