@@ -10,7 +10,7 @@ GizEdit's main focus is the GIZ file, the non-ai interactable elements of a leve
 
 ## Project Roadmap
 
-This project has ambitious goals and some may not be reached for a long time.
+These are the goals for GizEdit:
 
 - [ ] Full GIZ file editing support
   - [ ] TCS
