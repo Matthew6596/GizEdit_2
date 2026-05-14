@@ -1,6 +1,6 @@
 # GizEdit
 
-GizEdit is a level modding tool for the classic nu2 engine games (primarily focused on TCS). Being created alongside this project is a file documentation effort which you can visit here: [TCS File Formats](https://docs.google.com/document/d/1evg4BxJJGkiHe3INnVg00FlatldhoMZ2qTF7b_85l0c/edit?usp=sharing).
+GizEdit is a level modding tool for the classic nu2 engine games (primarily focused on TCS). Being created alongside this project is a file documentation effort which you can visit here: [TT Classic File Formats](https://docs.google.com/document/d/1evg4BxJJGkiHe3INnVg00FlatldhoMZ2qTF7b_85l0c/edit?usp=sharing).
 
 Here is the [Latest Release](https://github.com/Matthew6596/GizEdit_2/releases/latest)
 
@@ -10,18 +10,16 @@ GizEdit's main focus is the GIZ file, the non-ai interactable elements of a leve
 
 ## Project Roadmap
 
-This project has ambitious goals and some may not be reached for a long time.
+These are the goals for GizEdit:
 
 - [ ] Full GIZ file editing support
+  - [ ] TCS
+  - [ ] LIJ1
+  - [ ] LB1
 - [ ] GSC file readonly support
-- [ ] Full AI2 file editing support
-- [ ] Full GIT file editing support
-- [ ] TER and GSC file editing support
-  - [ ] Level geometry
-  - [ ] Special objects
-- [ ] Level.TXT editing support
-- [ ] Some support for CU2, PAR, RTL, PTL, SFX, FSP, SPL, GRA, and BUR files
-- [ ] Integrated SCP file editor w/ syntax
+  - [ ] TCS
+  - [ ] LIJ1
+  - [ ] LB1
 
 # Contribution
 
