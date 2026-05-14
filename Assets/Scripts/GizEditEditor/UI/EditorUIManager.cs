@@ -73,8 +73,9 @@ public class EditorUIManager : MonoBehaviour
 
         //Adding Default Menu Options
         AddMenuOption("File/Load Level", () => { TTLoader.Instance.LoadALevel(); });
-        AddMenuOption("File/Export Level", () => { TTExporter.Instance.Export(); });
-        AddMenuOption("File/Load File", () => { TTLoader.Instance.LoadAFile(); });
+        //AddMenuOption("File/Export Level", () => { TTExporter.Instance.Export(); });
+        AddMenuOption("File/Load GIZ", () => { TTLoader.Instance.LoadAFile(); });
+        AddMenuOption("File/Export GIZ", () => { TTExporter.Instance.Export(); });
         AddMenuOption("File/Unload All", () => { TTObjectManager.UnloadAll(); });
         AddMenuOption("Settings", () => { Settings.Instance.LoadMenu(); }, 0);
         AddMenuOption("Camera/TP to Obj", () => { CameraController.Instance.TeleportToLastSelectedObject(); });

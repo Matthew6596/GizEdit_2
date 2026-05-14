@@ -18,9 +18,13 @@ public class TTExporter : MonoBehaviour
     {
         ExportOptions options = new();
 
-        string[] ret = StandaloneFileBrowser.OpenFolderPanel("Select Level Export Location", Settings.Get("tcs_path"), false);
-        if (ret.Length == 0) return;
-        options.path = ret[0];
+        //string[] ret = StandaloneFileBrowser.OpenFolderPanel("Select Level Export Location", Settings.Get("tcs_path"), false);
+        //if (ret.Length == 0) return;
+        //options.path = ret[0];
+
+        //TEMP no other files exporting
+        string ret = StandaloneFileBrowser.SaveFilePanel("Export GIZ File", Settings.Get("tcs_path"), "gizmos.giz", "giz");
+        if (ret == "" || !Directory.Exists(Path.GetDirectoryName(ret))) return;
 
         //var options = EditorUIManager.Instance.
         StartCoroutine(Export(options));
