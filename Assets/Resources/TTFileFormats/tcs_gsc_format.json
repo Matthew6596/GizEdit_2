@@ -1,0 +1,9 @@
+{
+    "name": "TCS - Game Scene File",
+    "ext": "gsc",
+    "game": 0,
+    "type": 1,
+    "loaders": [
+        "Game Scene"
+    ]
+}

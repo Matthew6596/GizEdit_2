@@ -59,6 +59,7 @@ public class TTLoader : MonoBehaviour
         for (int i = 0; i < formats.Length; i++)
         {
             fileFormats[i] = JsonUtility.FromJson<TTFileFormat>(formats[i].text);
+            Debug.Log("loaded file format: " + fileFormats[i].name + ", " + fileFormats[i].ext);
         }
     }
 
@@ -66,7 +67,7 @@ public class TTLoader : MonoBehaviour
 
     private readonly static string[] fileLoadOrder = new string[]
     {
-        ".GIZ",""
+        "_PC.GSC","",".GIZ"
     };
 
     public void LoadALevel()
@@ -85,8 +86,10 @@ public class TTLoader : MonoBehaviour
 
     public static IEnumerator LoadLevel(string directory)
     {
+        TTObjectManager.UnloadAll();
+
         TTFileObject[] existingFiles = FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        if (existingFiles.Length > 0) {
+        /*if (existingFiles.Length > 0) {
             bool cancel = false;
             EditorUIManager.Instance.Warn("Do you want to unload the files currently open?",null,"Unload Current Files?",
                 ("Cancel", () => { cancel = true; }), ("No, Keep Loaded", () => { }), ("Yes, Unload", () => {
@@ -100,6 +103,14 @@ public class TTLoader : MonoBehaviour
             ));
             while (EditorUIManager.IsPopupOpen) yield return null;
             if (cancel) yield break;
+        }*/
+        if (existingFiles.Length > 0)
+        {
+            foreach (var existingFile in existingFiles)
+            {
+                existingFile.Destroy();
+                EditorUIManager.Instance.RemoveHierarchyRoot(existingFile);
+            }
         }
 
         int loadIndex = 0;
@@ -107,17 +118,24 @@ public class TTLoader : MonoBehaviour
         //Load all files in dependent order
         while(loadIndex < fileLoadOrder.Length)
         {
+            if (loadIndex < fileLoadOrder.Length && string.IsNullOrEmpty(fileLoadOrder[loadIndex]))
+            {
+                loadIndex++;
+                continue;
+            }
             //Load some files at same time if possible
             List<Coroutine> loadRoutines = new();
             int loadingCount = 0;
-            while (!string.IsNullOrEmpty(fileLoadOrder[loadIndex])) //using "" to separate groups of files
+            while (loadIndex < fileLoadOrder.Length && !string.IsNullOrEmpty(fileLoadOrder[loadIndex])) //using "" to separate groups of files
             {
                 string fpath = Path.Combine(directory, levelName+fileLoadOrder[loadIndex]);
                 //If file with given extension exists, load it
+                Debug.Log("attempting load: " + fpath);
                 if (File.Exists(fpath))
                 {
                     loadingCount++;
                     loadRoutines.Add(Instance.StartCoroutine(LoadFile(fpath, () => { loadingCount--; })));
+                    Debug.Log("file exists, load routine added");
                 }
                 loadIndex++;
             }
@@ -172,7 +190,7 @@ public class TTLoader : MonoBehaviour
         int index = 0;
         foreach (var loader in fileFormat.loaders)
         {
-            EditorUIManager.Instance.UpdateProgressBar(progress / (float)fileFormat.loaders.Length, $"Loading {loader}...");
+            EditorUIManager.Instance.UpdateProgressBar(progress / (float)fileFormat.loaders.Length, $"Loading {loader}... (this may take a minute)");
             yield return null;
 
             PropertyLoaderFactory.Load(loader, fileFormat.type, fileContents, ref index);

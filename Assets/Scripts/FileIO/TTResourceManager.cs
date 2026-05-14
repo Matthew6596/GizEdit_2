@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 public class TTResourceManager : MonoBehaviour
 {
-    public Material defaultResourceMaterial;
+    public Material defaultResourceMaterial, transparentMaterial, objectMaterial;
 
     public static TTResourceManager Instance { get; private set; }
 

@@ -8,6 +8,7 @@ public class PropertyLoaderFactory
     {
         "File Object" => new FileLoader(),
         "Gizmos" => new GizFileLoader(),
+        "Game Scene" => new Temp_GSCFileLoader(),
 
         _ => new NullPropertyLoader()
     };

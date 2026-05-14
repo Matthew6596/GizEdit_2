@@ -3337,6 +3337,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TTResourceLoader
   defaultResourceMaterial: {fileID: 2100000, guid: afc97ca0e1e87ab46866ae33434f5e9a, type: 2}
+  transparentMaterial: {fileID: 2100000, guid: 3c242c9ae567029488719b47867628a9, type: 2}
+  objectMaterial: {fileID: 2100000, guid: dfc7ae96b2a04a04eba3d12e172edfe8, type: 2}
   resourcePaths:
   - STUFF/THINGS_PC.GSC
   - STUFF/STARFIELD_PC.GSC
@@ -3979,8 +3981,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2006643277}
   m_HandleRect: {fileID: 2006643276}
   m_Direction: 0
-  m_Value: -0.0000029024977
-  m_Size: 0.89545494
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4151,7 +4153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000023473818, y: 0.0000144894275}
+  m_AnchoredPosition: {x: -0.0000043945192, y: 0.000008546959}
   m_SizeDelta: {x: 0, y: 73}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &459224689
@@ -10131,7 +10133,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1013157993}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.9999108
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -12398,6 +12400,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1891441525}
   m_CullTransparentMesh: 1
+--- !u!1 &1902197548
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1902197550}
+  - component: {fileID: 1902197549}
+  m_Layer: 0
+  m_Name: TEMP_GSCLOADER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1902197549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902197548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf37ce5ac34a1b468064e8468ed05a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneLoader
+  textures: []
+  materials: []
+--- !u!4 &1902197550
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902197548}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17.19409, y: 0, z: -1.99279}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1921646587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13766,3 +13814,4 @@ SceneRoots:
   - {fileID: 1547219771}
   - {fileID: 841499165}
   - {fileID: 180105003}
+  - {fileID: 1902197550}

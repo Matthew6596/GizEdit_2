@@ -68,6 +68,7 @@ public class TTObjectManager : MonoBehaviour
 
     public static void UnloadAll()
     {
+        if (Temp_GSCFile.Instance != null) Destroy(Temp_GSCFile.Instance.gameObject);
         foreach(var fileObj in GameObject.FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None)) fileObj.Destroy();
         EditorUIManager.Instance.RefreshHierarchy();
         EditorUIManager.Instance.ClearPropertyPanel();
