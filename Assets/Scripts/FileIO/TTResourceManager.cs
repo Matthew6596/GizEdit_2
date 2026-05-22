@@ -74,6 +74,7 @@ public class TTResourceManager : MonoBehaviour
             EditorUIManager.Instance.Warn($"No game path for {game} was selected. Until a path is chosen, resources from this game cannot be loaded. Is this ok?", null, "No Game Path", ("No, Select Path", () => { tryAgain = true; }), ("Yes, Continue", () => { }), ("Yes, Don't ask again.", () => { Settings.Set($"{gameName}_path_ask", "false"); Settings.Save(silent:true); }));
 
             if (tryAgain) ChooseGamePath(game);
+            else gamePaths[game] = "";
         }
         else 
         {
@@ -85,11 +86,11 @@ public class TTResourceManager : MonoBehaviour
 
     private void AttemptResourceLoad(TTGame game)
     {
-        string game_path = gamePaths[game];
-        if (!Directory.Exists(game_path))
+        if (!gamePaths.ContainsKey(game) || gamePaths[game] == "") return;
+        if (!Directory.Exists(gamePaths[game]))
         {
-            string driveErr = game_path.StartsWith("C") ? "" : "any external drives needed, ";
-            EditorUIManager.Instance.Err($"Path to {game} ({game_path}) could not be found. Make sure the path is correct, {driveErr}or update the path in the settings.", null, "Resource Path Error", ("Close", null), ("Choose New Path", () => { ChooseGamePath(game); }), ("Try Load Again", () => { AttemptResourceLoad(game); }));
+            string driveErr = gamePaths[game].StartsWith("C") ? "" : "any external drives needed, ";
+            EditorUIManager.Instance.Err($"Path to {game} ({gamePaths[game]}) could not be found. Make sure the path is correct, {driveErr}or update the path in the settings.", null, "Resource Path Error", ("Close", null), ("Choose New Path", () => { ChooseGamePath(game); }), ("Try Load Again", () => { AttemptResourceLoad(game); }));
         }
         else
         {

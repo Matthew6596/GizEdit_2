@@ -47,7 +47,7 @@ public class Settings : MonoBehaviour
         {
             v = defaultVal;
             Set(key, v);
-            Save();
+            Save(silent:true);
         }
         return v;
     }
@@ -58,6 +58,8 @@ public class Settings : MonoBehaviour
         {
             List<string> lines = new();
             foreach (var pair in settings) lines.Add($"{pair.Key} = {pair.Value}");
+            if (FilePath == "" || !Directory.Exists(Path.GetDirectoryName(FilePath))) 
+                FilePath = Path.Combine(Application.persistentDataPath, "settings.txt");
             File.WriteAllLines(FilePath, lines);
             if(!silent) EditorUIManager.Instance.Inform($"Settings saved successfully at {FilePath}.", "Settings Saved");
         }

@@ -4153,7 +4153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0000043945192, y: 0.000008546959}
+  m_AnchoredPosition: {x: -0.0000043945192, y: 0.00012892074}
   m_SizeDelta: {x: 0, y: 73}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &459224689
@@ -6365,8 +6365,10 @@ MonoBehaviour:
   - 'lb1_path = '
   - 'lij1_path = '
   - tcs_path_ask = true
-  - lb1_path_ask = true
-  - lij1_path_ask = true
+  - lb1_path_ask = false
+  - lij1_path_ask = false
+  - cursors = default
+  - theme = default
   settingsPanel: {fileID: 2043505853437265125}
 --- !u!4 &841499165
 Transform:
@@ -10133,7 +10135,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1013157993}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999108
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
