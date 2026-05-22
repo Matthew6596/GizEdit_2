@@ -70,18 +70,49 @@ public class TTLoader : MonoBehaviour
         "_PC.GSC","",".GIZ"
     };
 
+    private void WaitForEnd(IEnumerator ienumerator, Action endAction)
+    {
+        StartCoroutine(waitForEnd(ienumerator, endAction));
+    }
+
+    IEnumerator waitForEnd(IEnumerator ienumerator, Action endAction)
+    {
+        yield return ienumerator;
+        endAction();
+    }
+
     public void LoadALevel()
     {
         string[] res = SFB.StandaloneFileBrowser.OpenFolderPanel("Select a level", Settings.Get("tcs_path"), false);
         if (res.Length == 0) return;
-        StartCoroutine(LoadLevel(res[0]));
+
+        if (!TTResourceManager.WorkingGameLoaded)
+        {
+            WaitForEnd(TTResourceManager.Instance.LoadDataPaths(), () =>
+            {
+                /*Debug.Log("Action being actioned LEVEL");
+                if (TTResourceManager.WorkingGameLoaded) StartCoroutine(LoadLevel(res[0]));
+                else EditorUIManager.Instance.Inform("Things.gsc must be loaded for gizmo elements to load properly. Please try loading the level again.");*/
+            });
+        }
+        else StartCoroutine(LoadLevel(res[0]));
     }
 
     public void LoadAFile()
     {
         string[] res = SFB.StandaloneFileBrowser.OpenFilePanel("Select a level", Settings.Get("tcs_path"), new SFB.ExtensionFilter[] { new("Any", "*") },false);
         if (res.Length == 0) return;
-        StartCoroutine(LoadFile(res[0], () => { TTObjectManager.InitializeAllProperties(); }));
+
+        if (Path.GetExtension(res[0]) == ".giz" && !TTResourceManager.WorkingGameLoaded)
+        {
+            WaitForEnd(TTResourceManager.Instance.LoadDataPaths(), () =>
+            {
+                /*Debug.Log("Action being actioned FILE");
+                if (TTResourceManager.WorkingGameLoaded) StartCoroutine(LoadFile(res[0], () => { TTObjectManager.InitializeAllProperties(); }));
+                else EditorUIManager.Instance.Inform("Things.gsc must be loaded for gizmo elements to load properly. Please try loading the .giz file again.");*/
+            });
+        }
+        else StartCoroutine(LoadFile(res[0], () => { TTObjectManager.InitializeAllProperties(); }));
     }
 
     public static IEnumerator LoadLevel(string directory)
@@ -152,6 +183,12 @@ public class TTLoader : MonoBehaviour
     {
         string ext = Path.GetExtension(path).ToLower()[1..]; //get ext lowercase without period
         var fileFormat = Instance.GetTTFileFormat(ext, Instance.game);
+
+        if (ext == "giz" && !TTResourceManager.WorkingGameLoaded)
+        {
+            Instance.StartCoroutine(TTResourceManager.Instance.LoadDataPaths());
+            yield break;
+        }
 
         CurrentLoadingFilePath = path;
         CurrentLoadingFileType = fileFormat.type;

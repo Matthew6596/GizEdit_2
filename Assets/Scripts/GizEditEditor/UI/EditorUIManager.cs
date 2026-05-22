@@ -13,7 +13,7 @@ public enum LayoutMode { None, Horizontal, Vertical }
 public class EditorUIManager : MonoBehaviour
 {
     public static EditorUIManager Instance { get; private set; }
-    public static bool IsPopupOpen => Instance.popupStack.Count > 0;
+    public static bool IsPopupOpen => Instance.popupStack.Count > 0 || Instance.progressBar.gameObject.activeSelf || Instance.settingsPanel.gameObject.activeSelf;
 
     public EditorPanel propertyPanel, progressBar, optionsBar, hierarchyPanel, toolsPanel, settingsPanel;
     public Stack<EditorPanel> popupStack = new();
@@ -81,6 +81,8 @@ public class EditorUIManager : MonoBehaviour
         AddMenuOption("Camera/TP to Obj", () => { CameraController.Instance.TeleportToLastSelectedObject(); });
         AddMenuOption("Camera/TP to 0,0,0", () => { CameraController.Instance.transform.position = Vector3.zero; });
         AddMenuOption("App/Update", () => { UpdateManager.Instance.CheckLatestVers(); });
+        AddMenuOption("App/View Docs", () => { UpdateManager.Instance.Docs(); });
+        AddMenuOption("App/Contribute Docs", () => { UpdateManager.Instance.ContributeDocs(); });
         AddMenuOption("App/Report Bug", () => { UpdateManager.Instance.ReportBug(); });
         SetOptionPriority("File", -1);
         SetOptionPriority("App", 2);

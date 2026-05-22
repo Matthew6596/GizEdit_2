@@ -60,6 +60,8 @@ public class UpdateManager : MonoBehaviour
     }
 
     public void ReportBug() => Application.OpenURL($"{repoUrl}/issues");
+    public void ContributeDocs() => Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSeUC13fOexEooXWd3PS-_VO5dUGjVzO8SVDoiPS1MEcIrREjw/viewform");
+    public void Docs() => Application.OpenURL("https://docs.google.com/document/d/1evg4BxJJGkiHe3INnVg00FlatldhoMZ2qTF7b_85l0c/edit?tab=t.0");
 
     public Coroutine StartFetch(string url, Action<string> onSuccess, Action<string> onError)
     {

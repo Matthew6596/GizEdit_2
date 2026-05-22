@@ -43,6 +43,7 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
+        if (EditorUIManager.IsPopupOpen) return;
         if (CanLook) //(or move)
         {
             if (hoveredObj != null && canLookL) return;
@@ -133,6 +134,7 @@ public class CameraController : MonoBehaviour
 
     private bool InsideViewportOrWindow(Vector3 screenPos)
     {
+        if (EditorUIManager.IsPopupOpen) return false;
         Vector3 viewportPos = cam.ScreenToViewportPoint(screenPos);
         return viewportRect.Contains(viewportPos); //or check for inside popup windows
     }

@@ -71,6 +71,7 @@ public class GizFileLoader : FileLoader
             string p = StandaloneFileBrowser.SaveFilePanel("Export GIZ File", Settings.Get("tcs_path"), "gizmos.giz", "giz");
             if (p == "") return;
             TTExporter.ExportFile(obj, p);
+            EditorUIManager.Instance.Inform($"GIZ file {System.IO.Path.GetFileName(p)} was exported successfully! to {p}");
         }));
 
         obj.AddProperty(new NavBtnProperty("Unload", () =>

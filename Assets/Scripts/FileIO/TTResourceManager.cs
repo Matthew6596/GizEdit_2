@@ -28,7 +28,7 @@ public class TTResourceManager : MonoBehaviour
 
     private readonly Dictionary<TTGame,string> gamePaths = new();
     private readonly Dictionary<TTGame, bool> _resourcesLoaded = new();
-    public static TTGame WorkingGame { get; set; }
+    public static TTGame WorkingGame { get; set; } = TTGame.TCS;
     public static bool WorkingGameLoaded => Instance._resourcesLoaded[WorkingGame];
     public static UnityEvent OnLoaded = new();
 
@@ -45,7 +45,7 @@ public class TTResourceManager : MonoBehaviour
         
     }
 
-    IEnumerator LoadDataPaths()
+    public IEnumerator LoadDataPaths()
     {
         yield return null;
 
