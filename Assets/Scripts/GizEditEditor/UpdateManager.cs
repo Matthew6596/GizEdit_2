@@ -50,8 +50,8 @@ public class UpdateManager : MonoBehaviour
                 ), ("Go to Update", () => { Application.OpenURL(latestReleaseURL); }
                 ));
             }
-            else if (note != "") EditorUIManager.Instance.Warn("This version of GizEdit is experimental.", null, "Experimental Version");
-            else EditorUIManager.Instance.Inform("No new version of GizEdit was found.", "No Updates Available");
+            else if (note != "") EditorUIManager.Instance.Warn($"This version of GizEdit is experimental (...and no newer version found). {appVersion}", null, "Experimental Version");
+            else EditorUIManager.Instance.Inform($"No new version of GizEdit was found. {appVersion}", "No Updates Available");
 
         }, (e) =>
         {

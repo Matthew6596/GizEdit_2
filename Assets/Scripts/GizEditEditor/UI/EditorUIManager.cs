@@ -55,9 +55,6 @@ public class EditorUIManager : MonoBehaviour
     {
         Instance = this;
         canvas = FindFirstObjectByType<Canvas>();
-
-        EditorTheme.SetTheme(Settings.GetOrSetDefault("theme", "default"));
-        RefreshTheme();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -87,8 +84,19 @@ public class EditorUIManager : MonoBehaviour
         AddMenuOption("App/View Docs", () => { UpdateManager.Instance.Docs(); });
         AddMenuOption("App/Contribute Docs", () => { UpdateManager.Instance.ContributeDocs(); });
         AddMenuOption("App/Report Bug", () => { UpdateManager.Instance.ReportBug(); });
+        AddMenuOption("Help/Move Controls", () => { Inform("Hold L/R Click +\n - WASD to move\n - Space/shift for vertical movement\n - Move mouse to look", "Move Controls"); });
+        AddMenuOption("Help/Adv Controls", () => { Inform("L/R Click + Q --> Perspective Change\nL/R Click + scroll --> Move speed\nScroll --> FOV/Camera distance.", "Advanced Controls"); });
+        AddMenuOption("Help/Invisible?", () => { Inform("Some gizmos, such as levers, aren't viewable. Gizmos like these can still be edited and added. They can be selected in the hierarchy on the left.", "Can't See Some Gizmos?"); });
+        AddMenuOption("Help/Minikits?", () => { Inform("Currently, pickups with no model implemented are silver studs. Apologies for the inconvenience.", "Can't See Minikits?"); });
+        AddMenuOption("Help/Unkbit?", () => { Inform("Unkbit is 1 bit of data on a flags integer that is unknown. Typically you may want to ignore these, or copy what existing gizmos use.", "Unknown Bits"); });
+        AddMenuOption("Help/Unknown?", () => { Inform("Many values are still unknown, but editable. If you figure out what a value does/changes, you can help add it through the App > Contribute Docs menu option.", "Unknown Values"); });
+        AddMenuOption("Help/Projects?", () => { Inform("GizEdit doesn't support projects in any way. You import a file, edit it, then export/save it as a new file.", "Projects?"); });
+        AddMenuOption("Help/Undo?", () => { Inform("GizEdit doesn't have undo/redo functionality currently.", "Undo?"); });
+        AddMenuOption("Help/Special Objects?", () => { Inform("Special Objects are objects in the .gsc file. These are referenced in some gizmos by name, but changing the model/object itself has to be done in the .gsc.", "Special Objects?"); });
+        AddMenuOption("Help/Scale & Rotate?", () => { Inform("Currently the 'Scale' editor tool doesn't do anything. Rotate works, but not everything uses it.", "Scale & Rotate?"); });
         SetOptionPriority("File", -1);
         SetOptionPriority("App", 2);
+        SetOptionPriority("Help", 3);
     }
 
     // Update is called once per frame

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 
-[DefaultExecutionOrder(-1)]
+[DefaultExecutionOrder(-2)]
 public class Settings : MonoBehaviour
 {
     public static Settings Instance { get; private set; }
@@ -58,8 +58,10 @@ public class Settings : MonoBehaviour
         {
             List<string> lines = new();
             foreach (var pair in settings) lines.Add($"{pair.Key} = {pair.Value}");
+
             if (FilePath == "" || !Directory.Exists(Path.GetDirectoryName(FilePath))) 
                 FilePath = Path.Combine(Application.persistentDataPath, "settings.txt");
+
             File.WriteAllLines(FilePath, lines);
             if(!silent) EditorUIManager.Instance.Inform($"Settings saved successfully at {FilePath}.", "Settings Saved");
         }
@@ -74,10 +76,13 @@ public class Settings : MonoBehaviour
         try
         {
             settings.Clear();
-            foreach(var line in File.ReadAllLines(FilePath))
+            string[] lines = File.ReadAllLines(FilePath);
+            foreach (var line in lines)
             {
                 int eqInd = line.IndexOf('=');
-                settings.Add(line[..eqInd].Trim(), line[(eqInd + 1)..].Trim());
+                string key = line[..eqInd].Trim();
+                string val = line[(eqInd + 1)..].Trim();
+                settings.Add(key, val);
             }
 
             bool defaultAdded = false;
