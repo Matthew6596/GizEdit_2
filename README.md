@@ -4,6 +4,9 @@ GizEdit is a level modding tool for the classic nu2 engine games (primarily focu
 
 Here is the [Latest Release](https://github.com/Matthew6596/GizEdit_2/releases/latest)
 
+<img width="1918" height="1037" alt="Screenshot of GizEdit with Negotiations_A level loaded." src="https://github.com/user-attachments/assets/188e931a-6a32-4919-9d05-c070d4d9e861" />
+
+
 ## Usage
 
 GizEdit's main focus is the GIZ file, the non-ai interactable elements of a level, but the GIZ file has connections to other files as well such as the GIT file. GizEdit aims to be an editor that lets you customize the interactive elements of levels.
