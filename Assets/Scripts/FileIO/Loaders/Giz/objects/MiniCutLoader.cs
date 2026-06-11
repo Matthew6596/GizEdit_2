@@ -15,19 +15,19 @@ public class MiniCutLoader : PropertyLoader
         minicut.AddProperty(new StringProperty("Name", name, StringProperty.MaxSize.Byte));
 
         // ### Unknown 1 ###
-        minicut.AddProperty(new FloatProperty("Unknown 1", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        minicut.AddProperty(new FloatProperty("Start Delay?", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 2 ###
-        minicut.AddProperty(new FloatProperty("Unknown 2", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        minicut.AddProperty(new FloatProperty("Duration", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 3 ###
         minicut.AddProperty(new FloatProperty("Unknown 3", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 4 ###
-        minicut.AddProperty(new FloatProperty("Unknown 4", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        minicut.AddProperty(new FloatProperty("End Delay?", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 5 ###
-        minicut.AddProperty(new FloatProperty("Unknown 5", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        minicut.AddProperty(new FloatProperty("Max Total Duration?", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### MiniCut Parts ###
         MiniCutPartsLoader objsLoader = new();

@@ -17,7 +17,7 @@ public class blowupLoader : PropertyLoader
         blowup blwup = TTObjectManager.Create<blowup>(Name);
 
         // ### blowup Object? ###
-        blwup.AddProperty(new StringProperty("Blowup Object?", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
+        blwup.AddProperty(new StringProperty("Blowup Type", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
 
         // ### Name? ###
         string name = "";

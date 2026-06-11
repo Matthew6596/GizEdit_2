@@ -22,7 +22,7 @@ public class blowupSectionLoader : GizmoSectionLoader
             objCount = LoadBytes<int, IntLoader>(bytes, ref index);
 
             // ## blowupObject Count ##
-            objCountProp = new("blowupObject Count", objCount, IntegerProperty.IntType.Int, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden };
+            objCountProp = new("blowupType Count", objCount, IntegerProperty.IntType.Int, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden };
         }
         if (ShouldAddProperty(version, v => v >= 2)) section.AddProperty(objCountProp);
 
@@ -36,7 +36,7 @@ public class blowupSectionLoader : GizmoSectionLoader
         if (version >= 2)
         {
             // ## blowupObjects ##
-            objChildrenProp = ChildrenProperty.Create<blowupObject>("Blowup Objects", "", "Blowup Object", new blowupObjectLoader(version), new byte[59], bytes, ref index, objCount, (e) =>
+            objChildrenProp = ChildrenProperty.Create<blowupObject>("Blowup Types", "", "Blowup Type", new blowupObjectLoader(version), new byte[59], bytes, ref index, objCount, (e) =>
             {
                 objCountProp.Value = (e.value as ChildProperty[]).Length;
             }, TTProperty.FieldGenerateOptions.HiddenWName);
@@ -46,7 +46,7 @@ public class blowupSectionLoader : GizmoSectionLoader
             section.AddProperty(objChildrenProp);
 
             // # blowupObject Menu Options #
-            section.AddProperty(new EditOptionProperty("Gizmos/Create/New Blowup Object", () =>
+            section.AddProperty(new EditOptionProperty("Gizmos/Create/New Blowup Type", () =>
             {
                 (objChildrenProp.AddNewChild().Value as TTObject).GeneratePropertyPanel();
             }));

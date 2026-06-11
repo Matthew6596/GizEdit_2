@@ -33,14 +33,14 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 2))
         {
             // ## Bounds Corner ##
-            obstacle.AddProperty(new PositionProperty("Bounds Corner?", boundPoint, obstacle.BoundsCorner.transform,"The second point which makes up the obstacle bounding box.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
+            obstacle.AddProperty(new PositionProperty("Trigger Position", boundPoint, obstacle.BoundsCorner.transform,"The position of the trigger sphere.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
         }
 
         // ### Unknown 2 ###
         obstacle.AddProperty(new FloatProperty("Unknown 2", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
 
         // ### Unknown 3 ###
-        obstacle.AddProperty(new FloatProperty("Unknown 3", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
+        obstacle.AddProperty(new FloatProperty("Trigger Radius", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, ""));
 
         // ### Unknown 4 ###
         // ### Unknown 5 ###
