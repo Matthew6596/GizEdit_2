@@ -18,7 +18,7 @@ Check out these documents for getting started with GizEdit:
 These are the goals for GizEdit:
 
 - [ ] Full GIZ file editing support
-  - [ ] TCS
+  - [x] TCS
   - [ ] LIJ1
   - [ ] LB1
 - [ ] GSC file readonly support
