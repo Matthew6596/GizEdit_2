@@ -6,7 +6,7 @@ Here is the [Latest Release](https://github.com/Matthew6596/GizEdit_2/releases/l
 
 ## Usage
 
-GizEdit's main focus is the GIZ file, the non-ai interactable elements of a level, but the GIZ file has connections to other files as well such as the GIT file. GizEdit aims to be an editor that empowers you to customize the interactive elements of levels.
+GizEdit's main focus is the GIZ file, the non-ai interactable elements of a level, but the GIZ file has connections to other files as well such as the GIT file. GizEdit aims to be an editor that lets you customize the interactive elements of levels.
 
 Check out these documents for getting started with GizEdit:
 
