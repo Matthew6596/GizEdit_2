@@ -167,7 +167,7 @@ public abstract class TTObject : MouseInteractable
 
     public void Destroy()
     {
-        foreach (var prop in properties) prop.Destroy();
+        foreach (var prop in properties) if (prop != null) prop.Destroy();
         properties = null;
         Destroy(gameObject);
     }

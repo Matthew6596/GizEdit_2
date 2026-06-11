@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -54,5 +55,15 @@ public class PositionProperty : Vector3Property
         base.RefreshValueDisplays(value);
         target.localPosition = (Vector3)value;
         if (posGiz != null) posGiz.RefreshValues();
+    }
+
+    //Move gizmo changes seemingly weren't exporting correctly, so manual override here
+    public override IEnumerable<byte> ToBytes()
+    {
+        List<byte> bytes = new();
+        bytes.AddRange(BitConverter.GetBytes(target.localPosition.x));
+        bytes.AddRange(BitConverter.GetBytes(target.localPosition.y));
+        bytes.AddRange(BitConverter.GetBytes(target.localPosition.z));
+        return bytes;
     }
 }

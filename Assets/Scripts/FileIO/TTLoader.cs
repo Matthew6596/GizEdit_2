@@ -119,7 +119,8 @@ public class TTLoader : MonoBehaviour
     {
         TTObjectManager.UnloadAll();
 
-        TTFileObject[] existingFiles = FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        //TTFileObject[] existingFiles = FindObjectsByType<TTFileObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
         /*if (existingFiles.Length > 0) {
             bool cancel = false;
             EditorUIManager.Instance.Warn("Do you want to unload the files currently open?",null,"Unload Current Files?",
@@ -135,6 +136,8 @@ public class TTLoader : MonoBehaviour
             while (EditorUIManager.IsPopupOpen) yield return null;
             if (cancel) yield break;
         }*/
+
+        /*
         if (existingFiles.Length > 0)
         {
             foreach (var existingFile in existingFiles)
@@ -142,7 +145,7 @@ public class TTLoader : MonoBehaviour
                 existingFile.Destroy();
                 EditorUIManager.Instance.RemoveHierarchyRoot(existingFile);
             }
-        }
+        }*/
 
         int loadIndex = 0;
         string levelName = Path.GetFileName(directory);
@@ -176,7 +179,7 @@ public class TTLoader : MonoBehaviour
             //Load properties for objects created so far
             TTObjectManager.InitializeAllProperties();
         }
-        Debug.LogWarning("does this routine ever end?");
+        Debug.LogWarning("does this routine ever end?"); //it does lowkey
     }
 
     public static IEnumerator LoadFile(string path, Action finished)
@@ -203,6 +206,7 @@ public class TTLoader : MonoBehaviour
         EditorUIManager.Instance.ShowProgressBar($"Loading {fileFormat.ext} file {Path.GetFileName(path)}", "Loading file contents...");
         yield return null;
 
+        Debug.Log("reached load routine");
         object fileContents = null;
 
         //Attempt to read file contents

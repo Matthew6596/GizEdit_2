@@ -19,6 +19,6 @@ public class EditOptionProperty : TTProperty
 
     public override void Destroy()
     {
-        GameObject.Destroy(btn.gameObject);
+        if(btn.gameObject != null) GameObject.Destroy(btn.gameObject);
     }
 }
