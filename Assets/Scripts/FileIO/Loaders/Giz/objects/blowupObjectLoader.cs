@@ -37,8 +37,8 @@ public class blowupObjectLoader : PropertyLoader
         }
         if (ShouldAddProperty(version, v => v >= 17))
         {
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 1 (.par ref)", parRef1));
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 2 (.par ref)", parRef2));
+            blowupObj.AddProperty(CreateStr8Prop("Part Type (.par ref)", parRef1));
+            blowupObj.AddProperty(CreateStr8Prop("Part Type (.par ref)", parRef2));
         }
 
         // ### .ptl Reference? ###
@@ -53,9 +53,9 @@ public class blowupObjectLoader : PropertyLoader
         }
         if (ShouldAddProperty(version, v => v >= 4))
         {
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 3 (.ptl ref)", ptlRef1));
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 4 (.ptl ref)", ptlRef2));
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 5 (.ptl ref)", ptlRef3));
+            blowupObj.AddProperty(CreateStr8Prop("Debris Effect (.ptl ref)", ptlRef1));
+            blowupObj.AddProperty(CreateStr8Prop("Debris Effect (.ptl ref)", ptlRef2));
+            blowupObj.AddProperty(CreateStr8Prop("Debris Effect (.ptl ref)", ptlRef3));
         }
 
         // ### _ Reference? ###
@@ -68,8 +68,8 @@ public class blowupObjectLoader : PropertyLoader
         }
         if (ShouldAddProperty(version, v => v >= 26))
         {
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 6 (_ ref)", unk1Ref1));
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 7 (_ ref)", unk1Ref2));
+            blowupObj.AddProperty(CreateStr8Prop("Debris Effect", unk1Ref1));
+            blowupObj.AddProperty(CreateStr8Prop("Debris Effect", unk1Ref2));
         }
 
         // ### _ Reference? ###
@@ -82,8 +82,8 @@ public class blowupObjectLoader : PropertyLoader
         }
         if (ShouldAddProperty(version, v => v >= 27))
         {
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 8 (_ ref)", unk2Ref1));
-            blowupObj.AddProperty(CreateStr8Prop("Unknown 9 (_ ref)", unk2Ref2));
+            blowupObj.AddProperty(CreateStr8Prop("Debris Effect", unk2Ref1));
+            blowupObj.AddProperty(CreateStr8Prop("Debris Effect", unk2Ref2));
         }
 
         // ### Unknown 10 ###

@@ -49,17 +49,17 @@ public class GizTurretLoader : PropertyLoader
         turret.AddProperty(new NavBtnProperty("Special Objects -->", () => { specialObjects.GeneratePropertyPanel(); }));
 
         // ### Unknown 2 ###
-        PositionProperty posProp = new("Position?", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), turret.transform);
+        PositionProperty posProp = new("Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), turret.transform);
         turret.AddProperty(posProp);
 
         // ### Unknown 3 ###
         turret.AddProperty(new Vector3Property("Unknown 3", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), "..."));
 
         // ### Unknown 4 ###
-        turret.AddProperty(new Vector3Property("Unknown 4", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), "..."));
+        turret.AddProperty(new Vector3Property("Detection Box Pos?", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), "..."));
 
         // ### Unknown 5 ###
-        turret.AddProperty(new Vector3Property("Unknown 5", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), "..."));
+        turret.AddProperty(new Vector3Property("Detection Box Size?", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), "..."));
 
         // ### Unknown 6 ###
         turret.AddProperty(new IntegerProperty("Unknown 6", LoadBytes<int, IntLoader>(bytes, ref index), IntegerProperty.IntType.Int, "..."));
@@ -100,34 +100,34 @@ public class GizTurretLoader : PropertyLoader
         turret.AddProperty(new FloatProperty("Unknown 14", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 15 ###
-        turret.AddProperty(new FloatProperty("Unknown 15", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        turret.AddProperty(new FloatProperty("Shoot Range", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 16 ###
         turret.AddProperty(new FloatProperty("Unknown 16", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "This is always 0 in Vanilla TCS."));
 
         // ### Unknown 17 ###
-        turret.AddProperty(new FloatProperty("Unknown 17", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        turret.AddProperty(new FloatProperty("Fire Rate", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 18 ###
-        turret.AddProperty(new FloatProperty("Unknown 18", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        turret.AddProperty(new FloatProperty("Y Rotate Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 19 ###
-        turret.AddProperty(new FloatProperty("Unknown 19", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        turret.AddProperty(new FloatProperty("X Rotate Speed", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Minimum Studs Value? ###
-        turret.AddProperty(new IntegerProperty("Minimum Studs Value?", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
+        turret.AddProperty(new IntegerProperty("Studs Value", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
 
         // ### Maximum Studs Value? ###
-        turret.AddProperty(new IntegerProperty("Maximum Studs Value?", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
+        turret.AddProperty(new IntegerProperty("Studs X Angle", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
 
         // ### Studs Angle? ###
         GameObject studsSpawnObjTEMP = new("studs_spawn_obj_TEMP");
         studsSpawnObjTEMP.transform.SetParent(turret.transform);
         studsSpawnObjTEMP.transform.localPosition = Vector3.zero;
-        turret.AddProperty(new AngleProperty("Studs Angle?", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), studsSpawnObjTEMP.transform, "The angle at which studs emit."));
+        turret.AddProperty(new AngleProperty("Studs Y Angle", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), studsSpawnObjTEMP.transform, "The angle at which studs emit."));
 
         // ### Studs Position? ###
-        turret.AddProperty(new PositionProperty("Studs Position?", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), studsSpawnObjTEMP.transform, "The relative position at which studs emit.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
+        turret.AddProperty(new PositionProperty("Studs Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), studsSpawnObjTEMP.transform, "The relative position at which studs emit.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
 
         // ### Studs Speed? ###
         float studSpd = 1.5f;
@@ -135,7 +135,7 @@ public class GizTurretLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 6))
         {
             // ## Studs Speed? ##
-            turret.AddProperty(new FloatProperty("Studs Speed?", studSpd, FloatProperty.FloatType.Float, "The speed of the studs as they emit.", (e) => { }, 1.5f));
+            turret.AddProperty(new FloatProperty("Studs Speed", studSpd, FloatProperty.FloatType.Float, "The speed of the studs as they emit.", (e) => { }, 1.5f));
         }
 
         // ### Unknown 20 ###
@@ -162,21 +162,21 @@ public class GizTurretLoader : PropertyLoader
         }
 
         // ### Blaster Material? ###
-        turret.AddProperty(new StringProperty("Blaster Material?", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
+        turret.AddProperty(new StringProperty("Bolt Type", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
 
         // ### Part? ###
-        turret.AddProperty(new StringProperty("Part?", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
+        turret.AddProperty(new StringProperty("Unknown (sfx)", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
 
         // ### Part? ###
-        turret.AddProperty(new StringProperty("Part?", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
+        turret.AddProperty(new StringProperty("Unknown (sfx)", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
 
         // ### Part? ###
         string part3 = "";
         if (version >= 7) part3 = LoadBytes<string, String8Loader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v >= 7)) turret.AddProperty(new StringProperty("Part?", part3, StringProperty.MaxSize.Byte, "..."));
+        if (ShouldAddProperty(version, v => v >= 7)) turret.AddProperty(new StringProperty("Unknown (sfx)", part3, StringProperty.MaxSize.Byte, "..."));
 
         // ### Blowup? ###
-        turret.AddProperty(new StringProperty("Blowup?", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
+        turret.AddProperty(new StringProperty("Blowup", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, "..."));
 
         // ### Unknown 23 ###
         turret.AddProperty(new IntegerProperty("Unknown 23", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));

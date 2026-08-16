@@ -33,11 +33,11 @@ public class SpinnerLoader : PropertyLoader
         // ### Spinner Special Object ###
         spinner.AddProperty(new StringProperty("Spinner Special Object", LoadBytes<string, String8Loader>(bytes, ref index), StringProperty.MaxSize.Byte, ""));
 
-        // ### Unknown Count ###
-        byte unkCount = bytes[index];
+        // ### Output Count ###
+        byte outputCount = bytes[index];
         index++;
-        IntegerProperty unkCountProp = new("Unknown Count", unkCount, IntegerProperty.IntType.Byte, "...");
-        spinner.AddProperty(unkCountProp);
+        IntegerProperty outputCountProp = new("Output Count", outputCount, IntegerProperty.IntType.Byte, "...");
+        spinner.AddProperty(outputCountProp);
 
         // ### Flap Count ###
         byte flapCount = 0;
@@ -69,10 +69,10 @@ public class SpinnerLoader : PropertyLoader
         if (ShouldAddProperty(version, v => flapsExist && v >= 3))
         {
             // ## Unknown 1 ##
-            spinner.AddProperty(new IntegerProperty("Unknown 1", unk1, IntegerProperty.IntType.Int, "..."));
+            spinner.AddProperty(new IntegerProperty("Interaction Options?", unk1, IntegerProperty.IntType.Int, "..."));
 
             // ## Unknown 2 ##
-            spinner.AddProperty(new FloatProperty("Unknown 2", unk2, FloatProperty.FloatType.Float, "..."));
+            spinner.AddProperty(new FloatProperty("Output Stick Time", unk2, FloatProperty.FloatType.Float, "..."));
         }
 
         // ### Unknown 3 ###
@@ -81,7 +81,7 @@ public class SpinnerLoader : PropertyLoader
         if (ShouldAddProperty(version, v => flapsExist && v >= 4))
         {
             // ## Unknown 3 ##
-            spinner.AddProperty(new FloatProperty("Unknown 3", unk3, FloatProperty.FloatType.Float, "..."));
+            spinner.AddProperty(new FloatProperty("Anim Speed", unk3, FloatProperty.FloatType.Float, "..."));
         }
 
         // ### Unknown 4 ###
@@ -116,12 +116,12 @@ public class SpinnerLoader : PropertyLoader
         if (version >= 7)
         {
             // ## Unknown 5 ##
-            unk5Prop = ArrayProperty<FloatProperty>.Create("Unknown 5", "", "Unk5", new FloatLoader(), 0f, bytes, ref index, unkCountProp, (info) =>
+            unk5Prop = ArrayProperty<FloatProperty>.Create("Output States", "", "Output", new FloatLoader(), 0f, bytes, ref index, outputCountProp, (info) =>
             {
                 return new FloatProperty($"{info.name}", (float)info.defaultValue, FloatProperty.FloatType.Float, "...");
             }, (e) => { }, TTProperty.FieldGenerateOptions.None);
 
-            unkCountProp.generateOptions = TTProperty.FieldGenerateOptions.Hidden;
+            outputCountProp.generateOptions = TTProperty.FieldGenerateOptions.Hidden;
         }
         if (ShouldAddProperty(version, v => v >= 7)) spinner.AddProperty(unk5Prop);
 

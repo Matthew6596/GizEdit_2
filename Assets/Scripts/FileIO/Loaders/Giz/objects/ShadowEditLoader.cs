@@ -17,11 +17,11 @@ public class ShadowEditLoader : PropertyLoader
         ShadowEdit shadowEdit = TTObjectManager.Create<ShadowEdit>(Name);
 
         // ### Position ###
-        PositionProperty posProp = new("Position", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), shadowEdit.transform);
+        Vector3Property posProp = new("Shadow Direction", LoadBytes<Vector3, Vector3Loader>(bytes, ref index));
         shadowEdit.AddProperty(posProp);
 
         // ### Unknown 1 ###
-        shadowEdit.AddProperty(new FloatProperty("Unknown 1", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        shadowEdit.AddProperty(new FloatProperty("Opacity", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 2 ###
         // ### Unknown 3 ###
@@ -60,7 +60,7 @@ public class ShadowEditLoader : PropertyLoader
         // ### Unknown 6 ###
         float unk6 = 0;
         if (version >= 4) unk6 = LoadBytes<float, FloatLoader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v >= 4)) shadowEdit.AddProperty(new FloatProperty("Unknown 6", unk6, FloatProperty.FloatType.Float, "..."));
+        if (ShouldAddProperty(version, v => v >= 4)) shadowEdit.AddProperty(new FloatProperty("Render Distance", unk6, FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 7 ###
         // ### Unknown 8 ###
@@ -70,13 +70,13 @@ public class ShadowEditLoader : PropertyLoader
             unk7 = LoadBytes<float, FloatLoader>(bytes, ref index);
             unk8 = LoadBytes<float, FloatLoader>(bytes, ref index);
         }
-        if (ShouldAddProperty(version, v => v >= 5))
+        if (ShouldAddProperty(version, v => v >= 5)) //padding
         {
             // ## Unknown 7 ##
-            shadowEdit.AddProperty(new FloatProperty("Unknown 7", unk7, FloatProperty.FloatType.Float, "This is always 0 in Vanilla TCS."));
+            shadowEdit.AddProperty(new FloatProperty("Unknown 7", unk7, FloatProperty.FloatType.Float, "This is always 0 in Vanilla TCS.") { generateOptions=TTProperty.FieldGenerateOptions.Hidden});
 
             // ## Unknown 8 ##
-            shadowEdit.AddProperty(new FloatProperty("Unknown 8", unk8, FloatProperty.FloatType.Float, "This is always 0 in Vanilla TCS."));
+            shadowEdit.AddProperty(new FloatProperty("Unknown 8", unk8, FloatProperty.FloatType.Float, "This is always 0 in Vanilla TCS.") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         }
 
         // ### Unknown 9 ###
@@ -92,7 +92,7 @@ public class ShadowEditLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 6))
         {
             // ## Unknown 9 ##
-            shadowEdit.AddProperty(new FloatProperty("Unknown 9", unk9, FloatProperty.FloatType.Float, "..."));
+            shadowEdit.AddProperty(new FloatProperty("Blur", unk9, FloatProperty.FloatType.Float, "..."));
 
             // ## Unknown 10 ##
             shadowEdit.AddProperty(new FloatProperty("Unknown 10", unk10, FloatProperty.FloatType.Float, "..."));
@@ -104,12 +104,18 @@ public class ShadowEditLoader : PropertyLoader
         // ### Unknown 12 ###
         float unk12 = 0;
         if (version >= 7) unk12 = LoadBytes<float, FloatLoader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v >= 7)) shadowEdit.AddProperty(new FloatProperty("Unknown 12", unk12, FloatProperty.FloatType.Float, "..."));
+        if (ShouldAddProperty(version, v => v >= 7)) shadowEdit.AddProperty(new FloatProperty("Quality (0=better)", unk12, FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 13 ###
         int unk13 = 0;
         if (version >= 8) unk13 = LoadBytes<int, IntLoader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v >= 8)) shadowEdit.AddProperty(new IntegerProperty("Unknown 13", unk13, IntegerProperty.IntType.Int, "This is always 0, 1, or 2 in Vanilla TCS."));
+        if (ShouldAddProperty(version, v => v >= 8))
+        {
+            shadowEdit.AddProperty(new IntegerProperty("Preset", unk13, IntegerProperty.IntType.Int, "This is always 0, 1, or 2 in Vanilla TCS."));
+            shadowEdit.AddProperty(new NavLblProperty("Preset 0 = Custom"));
+            shadowEdit.AddProperty(new NavLblProperty("Preset 1 = Normal"));
+            shadowEdit.AddProperty(new NavLblProperty("Preset 2 = Vehicle"));
+        }
 
         _value = shadowEdit;
     }

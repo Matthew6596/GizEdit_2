@@ -28,23 +28,23 @@ public class ZipUpLoader : PropertyLoader
         zip.AddProperty(startPosProp);
 
         // ### Axis ###
-        zip.AddProperty(new PositionProperty("Axis", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), zip.AxisTransform, "...") { isSecondaryPosGiz = true, primaryPosProperty = startPosProp });
+        zip.AddProperty(new PositionProperty("Hook", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), zip.AxisTransform, "...") { isSecondaryPosGiz = true, primaryPosProperty = startPosProp });
 
         // ### End ###
         zip.AddProperty(new PositionProperty("End", LoadBytes<Vector3, Vector3Loader>(bytes, ref index), zip.EndTransform, "...") { isSecondaryPosGiz = true, primaryPosProperty = startPosProp });
 
         // ### Unknown 1 ###
-        zip.AddProperty(new IntegerProperty("Unknown 1", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        zip.AddProperty(new IntegerProperty("Hook X Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Unknown 2 ###
-        zip.AddProperty(new IntegerProperty("Unknown 2", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        zip.AddProperty(new IntegerProperty("Hook Y Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Swing ###
         zip.AddProperty(new BoolProperty("Swing", bytes[index] != 0, "..."));
         index++;
 
         // ### Unknown 3 ###
-        zip.AddProperty(new BoolProperty("Unknown 3", bytes[index] != 0, "..."));
+        zip.AddProperty(new BoolProperty("Player Active", bytes[index] != 0, "..."));
         index++;
 
         // ### Two Way ###
@@ -61,7 +61,7 @@ public class ZipUpLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 2))
         {
             // ## Invisible ##
-            zip.AddProperty(new BoolProperty("Invisible", invis, "..."));
+            zip.AddProperty(new BoolProperty("Hook Visible", invis, "..."));
         }
 
         // ### Unknown 4 ###
@@ -74,7 +74,7 @@ public class ZipUpLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 3))
         {
             // ## Unknown 4 ##
-            zip.AddProperty(new BoolProperty("Unknown 4", unk4, "..."));
+            zip.AddProperty(new BoolProperty("Inactive", unk4, "..."));
         }
 
         // ### Target(s) Invisible? ###
@@ -87,7 +87,7 @@ public class ZipUpLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 4))
         {
             // ## Target(s) Invisible? ##
-            zip.AddProperty(new BoolProperty("Target(s) Invisible?", targInvis, "..."));
+            zip.AddProperty(new BoolProperty("Targets Visible", targInvis, "..."));
         }
 
         _value = zip;

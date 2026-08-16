@@ -82,21 +82,28 @@ public class GizObstacleLoader : PropertyLoader
             unk9 = bytes[index];
             index++;
         }
-        if (ShouldAddProperty(version, v => v == 6))
+        if (ShouldAddProperty(version, v => v == 6)) //Padding
         {
             // ## Unknown 8 ##
-            obstacle.AddProperty(new IntegerProperty("Unknown 8", unk8, IntegerProperty.IntType.Short, ""));
+            obstacle.AddProperty(new IntegerProperty("Unknown 8", unk8, IntegerProperty.IntType.Short, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
             // ## Unknown 9 ##
-            obstacle.AddProperty(new IntegerProperty("Unknown 9", unk9, IntegerProperty.IntType.Byte, ""));
+            obstacle.AddProperty(new IntegerProperty("Unknown 9", unk9, IntegerProperty.IntType.Byte, "") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         }
 
         // ### Unknown 10 ###
-        obstacle.AddProperty(new IntegerProperty("Unknown 10", bytes[index], IntegerProperty.IntType.Byte, ""));
+        obstacle.AddProperty(new EnumProperty("Anim Behaviour", bytes[index],
+            new() { { "One Shot", 0 }, { "Auto Reverse", 1 }, { "Indefinite Loop", 2 }, { "Held Loop", 3 }, { "Instant Reverse", 4 }, },
+            ""));
+        //obstacle.AddProperty(new IntegerProperty("Unknown 10", bytes[index], IntegerProperty.IntType.Byte, ""));
         index++;
 
         // ### Unknown 11 ###
-        obstacle.AddProperty(new IntegerProperty("Unknown 11", bytes[index], IntegerProperty.IntType.Byte, ""));
+        obstacle.AddProperty(new EnumProperty("Trigger Type", bytes[index],
+            new() { { "AutoStart", 0 }, { "Proximity1", 1 }, { "Proximity2", 2 }, { "NoTrigger", 3 }, { "TechnoOnly", 4 },
+            { "Proximity3", 5 }, { "Proximity4", 6 }, { "PushOnly", 7 } },
+            ""));
+        //obstacle.AddProperty(new IntegerProperty("Unknown 11", bytes[index], IntegerProperty.IntType.Byte, ""));
         index++;
 
         // ### Unknown 12 ###
@@ -143,7 +150,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 4)) 
         {
             // ## Unknown 14 ##
-            obstacle.AddProperty(new FloatProperty("Unknown 14", unk14, FloatProperty.FloatType.Float, ""));
+            obstacle.AddProperty(new FloatProperty("Anim Speed", unk14, FloatProperty.FloatType.Float, ""));
         }
 
         // ### Unknown 15 ###
@@ -152,7 +159,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 5))
         {
             // ## Unknown 15 ##
-            obstacle.AddProperty(new FloatProperty("Unknown 15", unk15, FloatProperty.FloatType.Float, ""));
+            obstacle.AddProperty(new FloatProperty("Reverse Speed", unk15, FloatProperty.FloatType.Float, ""));
         }
 
         // ### Unknown 16 ###
@@ -170,7 +177,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v == 9))
         {
             // ## Unknown 17 ##
-            obstacle.AddProperty(new IntegerProperty("Unknown 17", unk17, IntegerProperty.IntType.Short, ""));
+            obstacle.AddProperty(new IntegerProperty("Blowup ID", unk17, IntegerProperty.IntType.Short, ""));
         }
 
         // ### Unknown 18 ###
@@ -179,7 +186,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 10))
         {
             // ## Unknown 18 ##
-            obstacle.AddProperty(new StringProperty("Unknown 18", unk18, StringProperty.MaxSize.Byte, ""));
+            obstacle.AddProperty(new StringProperty("Blowup", unk18, StringProperty.MaxSize.Byte, ""));
         }
 
         // ### Minimum Studs Value ###
@@ -198,16 +205,16 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 4))
         {
             // ## Minimum Studs Value ##
-            obstacle.AddProperty(new IntegerProperty("Minimum Studs Value", minStuds, IntegerProperty.IntType.UShort, "..."));
+            obstacle.AddProperty(new IntegerProperty("Studs Value", minStuds, IntegerProperty.IntType.UShort, "..."));
 
             // ## Maximum Studs Value ##
-            obstacle.AddProperty(new IntegerProperty("Maximum Studs Value", maxStuds, IntegerProperty.IntType.UShort, "..."));
+            obstacle.AddProperty(new IntegerProperty("Studs X Angle", maxStuds, IntegerProperty.IntType.UShort, "..."));
 
             // ## Studs Angle ##
             GameObject studsSpawnObjTEMP = new("studs_spawn_obj_TEMP");
             studsSpawnObjTEMP.transform.SetParent(obstacle.transform);
             studsSpawnObjTEMP.transform.localPosition = Vector3.zero;
-            obstacle.AddProperty(new AngleProperty("Studs Angle", studAng, studsSpawnObjTEMP.transform, "The angle at which studs emit."));
+            obstacle.AddProperty(new AngleProperty("Studs Y Angle", studAng, studsSpawnObjTEMP.transform, "The angle at which studs emit."));
 
             // ## Studs Position ##
             obstacle.AddProperty(new PositionProperty("Studs Position", studPos, studsSpawnObjTEMP.transform, "The relative position at which studs emit.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });
@@ -228,7 +235,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 13))
         {
             // ## Unknown 19 ##
-            obstacle.AddProperty(new StringProperty("Unknown 19 (sfx)", unk19, StringProperty.MaxSize.Byte, ""));
+            obstacle.AddProperty(new StringProperty("Start SFX", unk19, StringProperty.MaxSize.Byte, ""));
         }
 
         // ### Unknown 20 ###
@@ -237,7 +244,7 @@ public class GizObstacleLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 14))
         {
             // ## Unknown 20 ##
-            obstacle.AddProperty(new StringProperty("Unknown 20 (sfx)", unk20, StringProperty.MaxSize.Byte, ""));
+            obstacle.AddProperty(new StringProperty("Reverse SFX", unk20, StringProperty.MaxSize.Byte, ""));
         }
 
         _value = obstacle;

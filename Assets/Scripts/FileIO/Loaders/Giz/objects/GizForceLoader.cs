@@ -31,10 +31,10 @@ public class GizForceLoader : PropertyLoader
         // ### Unknown 1 ###
         Vector3 unk1 = Vector3.zero;
         if (version == 1) unk1 = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v == 1))
+        if (ShouldAddProperty(version, v => v == 1)) //padding
         {
             // ## Unknown 1 ##
-            force.AddProperty(new Vector3Property("Unknown 1", unk1));
+            force.AddProperty(new Vector3Property("Unknown 1", unk1) { generateOptions=TTProperty.FieldGenerateOptions.Hidden});
         }
 
         // ### Return Time ###
@@ -56,18 +56,18 @@ public class GizForceLoader : PropertyLoader
         // ### Unknown 3 ###
         Vector3 unk2 = Vector3.zero;
         short unk3 = 0;
-        if (version == 1)
+        if (version == 1) //padding
         {
             unk2 = LoadBytes<Vector3, Vector3Loader>(bytes, ref index);
             unk3 = LoadBytes<short, ShortLoader>(bytes, ref index);
         }
-        if (ShouldAddProperty(version, v => v == 1))
+        if (ShouldAddProperty(version, v => v == 1)) //padding
         {
             // ## Unknown 2 ##
-            force.AddProperty(new Vector3Property("Unknown 2", unk2));
+            force.AddProperty(new Vector3Property("Unknown 2", unk2) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
 
             // ## Unknown 3 ##
-            force.AddProperty(new IntegerProperty("Unknown 3", unk3, IntegerProperty.IntType.Short));
+            force.AddProperty(new IntegerProperty("Unknown 3", unk3, IntegerProperty.IntType.Short) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         }
 
         // ### Force Behaviors ###
@@ -77,7 +77,7 @@ public class GizForceLoader : PropertyLoader
         interactOptions[2] = "Can Return Later";
         interactOptions[4] = "Dark Side";
         interactOptions[5] = "idk";
-        interactOptions[6] = "Turn on light?";
+        //interactOptions[6] = "idk";
         interactOptions[10] = "Cannot undo?";
         interactOptions[11] = "two player force?|Stack box? but also used for other forces.";
         force.AddProperty(new IntBitFlagsProperty("Force Behaviors", LoadBytes<int, IntLoader>(bytes, ref index), interactOptions, "Behaviors such as Dark Side or whether reset occurs."));
@@ -110,10 +110,10 @@ public class GizForceLoader : PropertyLoader
             unk6 = bytes[index];
             index++;
         }
-        if (ShouldAddProperty(version, v => v == 1))
+        if (ShouldAddProperty(version, v => v == 1)) //padding
         {
             // ## Unknown 6 ##
-            force.AddProperty(new IntegerProperty("Unknown 6", unk6, IntegerProperty.IntType.Byte, "..."));
+            force.AddProperty(new IntegerProperty("Unknown 6", unk6, IntegerProperty.IntType.Byte, "...") { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         }
 
         if (TTLoader.LogEnabled) Debug.Log($"Loading GizForce special objects at {index}");
@@ -183,7 +183,7 @@ public class GizForceLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v == 4))
         {
             // ## Unknown 9 ##
-            force.AddProperty(new IntegerProperty("Unknown 9", unk9, IntegerProperty.IntType.Short, "..."));
+            force.AddProperty(new IntegerProperty("Blowup ID", unk9, IntegerProperty.IntType.Short, "..."));
         }
 
         // ### Linked blowup ###
@@ -211,16 +211,16 @@ public class GizForceLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 4))
         {
             // ## Minimum Studs Value ##
-            force.AddProperty(new IntegerProperty("Minimum Studs Value", minStuds, IntegerProperty.IntType.UShort, "..."));
+            force.AddProperty(new IntegerProperty("Studs Value", minStuds, IntegerProperty.IntType.UShort, "..."));
 
             // ## Maximum Studs Value ##
-            force.AddProperty(new IntegerProperty("Maximum Studs Value", maxStuds, IntegerProperty.IntType.UShort, "..."));
+            force.AddProperty(new IntegerProperty("Studs X Angle", maxStuds, IntegerProperty.IntType.UShort, "..."));
 
             // ## Studs Angle ##
             GameObject studsSpawnObjTEMP = new("studs_spawn_obj_TEMP");
             studsSpawnObjTEMP.transform.SetParent(force.transform);
             studsSpawnObjTEMP.transform.localPosition = Vector3.zero;
-            force.AddProperty(new AngleProperty("Studs Angle", studAng, studsSpawnObjTEMP.transform, "The angle at which studs emit."));
+            force.AddProperty(new AngleProperty("Studs Y Angle", studAng, studsSpawnObjTEMP.transform, "The angle at which studs emit."));
 
             // ## Studs Position ##
             force.AddProperty(new PositionProperty("Studs Position", studPos, studsSpawnObjTEMP.transform, "The relative position at which studs emit.") { isSecondaryPosGiz = true, primaryPosProperty = posProp });

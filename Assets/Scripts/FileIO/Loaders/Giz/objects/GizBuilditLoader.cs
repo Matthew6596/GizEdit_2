@@ -44,17 +44,17 @@ public class GizBuilditLoader : PropertyLoader
         // ### Unknown 1 ###
         float unk1 = 0;
         if (version <= 6) unk1 = LoadBytes<float, FloatLoader>(bytes, ref index);
-        if (ShouldAddProperty(version, v => v <= 6))
+        if (ShouldAddProperty(version, v => v <= 6)) //Padding
         {
             // ## Unknown 1 ##
-            buildit.AddProperty(new FloatProperty("Unknown 1", unk1, FloatProperty.FloatType.Float, "..."));
+            buildit.AddProperty(new FloatProperty("Unknown 1", unk1, FloatProperty.FloatType.Float, "...") { generateOptions=TTProperty.FieldGenerateOptions.Hidden});
         }
 
         // ### Minimum Studs Value ###
-        buildit.AddProperty(new IntegerProperty("Minimum Studs Value", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
+        buildit.AddProperty(new IntegerProperty("Studs Value", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
 
         // ### Maximum Studs Value (or random variance?) ###
-        buildit.AddProperty(new IntegerProperty("Maximum Studs Value", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
+        buildit.AddProperty(new IntegerProperty("Unknown 1", (ushort)LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.UShort, "..."));
 
         // ### Unknown 2 ###
         buildit.AddProperty(new IntegerProperty("Unknown 2", bytes[index], IntegerProperty.IntType.Byte, "..."));
@@ -79,7 +79,7 @@ public class GizBuilditLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v == 7))
         {
             // ## Unknown 5 ##
-            buildit.AddProperty(new IntegerProperty("Unknown 5", unk5, IntegerProperty.IntType.Short, "..."));
+            buildit.AddProperty(new IntegerProperty("Blowup ID", unk5, IntegerProperty.IntType.Short, "..."));
         }
 
         // ### Unknown 6 ###
@@ -88,7 +88,7 @@ public class GizBuilditLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 8))
         {
             // ## Unknown 6 ##
-            buildit.AddProperty(new StringProperty("Unknown 6", unk6, StringProperty.MaxSize.Byte, "..."));
+            buildit.AddProperty(new StringProperty("Blowup", unk6, StringProperty.MaxSize.Byte, "..."));
         }
 
         // ### Studs Pitch? ###
@@ -105,10 +105,10 @@ public class GizBuilditLoader : PropertyLoader
         if (ShouldAddProperty(version, v => v >= 7))
         {
             // ## Studs Pitch? ##
-            buildit.AddProperty(new IntegerProperty("Studs Pitch", studPitch, IntegerProperty.IntType.Short, "The pitch angle at which studs emit."));
+            buildit.AddProperty(new IntegerProperty("Studs X Angle", studPitch, IntegerProperty.IntType.Short, "The pitch angle at which studs emit."));
 
             // ## Studs Yaw? ##
-            buildit.AddProperty(new IntegerProperty("Studs Yaw", studYaw, IntegerProperty.IntType.Short, "The yaw angle at which studs emit."));
+            buildit.AddProperty(new IntegerProperty("Studs Y Angle", studYaw, IntegerProperty.IntType.Short, "The yaw angle at which studs emit."));
 
             // ## Studs Position ##
             GameObject studsSpawnObjTEMP = new("studs_spawn_obj_TEMP");
@@ -142,7 +142,9 @@ public class GizBuilditLoader : PropertyLoader
         if (version >= 5)
         {
             unk8 = LoadBytes<short, ShortLoader>(bytes, ref index);
-            unk9 = LoadBytes<string, String8Loader>(bytes, ref index);
+            bool hasBuildit2 = bytes[index] != 0;
+            index++;
+            if(hasBuildit2) unk9 = LoadBytes<string, String8Loader>(bytes, ref index);
         }
         if (ShouldAddProperty(version, v => v >= 5))
         {
@@ -150,7 +152,8 @@ public class GizBuilditLoader : PropertyLoader
             buildit.AddProperty(new IntegerProperty("Unknown 8", unk8, IntegerProperty.IntType.Short, "..."));
 
             // ## Unknown 9 ##
-            buildit.AddProperty(new StringProperty("Unknown 9", unk9, StringProperty.MaxSize.Byte, "..."));
+            //buildit.AddProperty(new StringProperty("Unknown 9", unk9, StringProperty.MaxSize.Byte, "..."));
+            buildit.AddProperty(new IntegerProperty("Linked buildit (unsupported)", 0, IntegerProperty.IntType.Byte) { generateOptions = TTProperty.FieldGenerateOptions.Hidden });
         }
 
         _value = buildit;

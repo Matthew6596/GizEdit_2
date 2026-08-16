@@ -29,13 +29,13 @@ public class blowupLoader : PropertyLoader
         blwup.AddProperty(posProp);
 
         // ### Unknown 1 ###
-        blwup.AddProperty(new IntegerProperty("Unknown 1", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        blwup.AddProperty(new IntegerProperty("X Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Unknown 2 ###
-        blwup.AddProperty(new IntegerProperty("Unknown 2", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        blwup.AddProperty(new IntegerProperty("Y Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Unknown 3 ###
-        blwup.AddProperty(new IntegerProperty("Unknown 3", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        blwup.AddProperty(new IntegerProperty("Z Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Unknown 4a ###
         int unk4a = 0;

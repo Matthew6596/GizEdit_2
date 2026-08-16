@@ -21,19 +21,19 @@ public class MiniCutPartLoader : PropertyLoader
         part.AddProperty(new FloatProperty("Camera Distance", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 5 ###
-        part.AddProperty(new IntegerProperty("Camera Pitch", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        part.AddProperty(new IntegerProperty("Camera X Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Unknown 6 ###
-        part.AddProperty(new IntegerProperty("Camera Yaw", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        part.AddProperty(new IntegerProperty("Camera Y Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Unknown 7 ###
-        part.AddProperty(new IntegerProperty("Camera Roll", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
+        part.AddProperty(new IntegerProperty("Camera Z Angle", LoadBytes<short, ShortLoader>(bytes, ref index), IntegerProperty.IntType.Short, "..."));
 
         // ### Unknown 8 ###
-        part.AddProperty(new FloatProperty("Unknown 8", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        part.AddProperty(new FloatProperty("Ease In Time", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         // ### Unknown 9 ###
-        part.AddProperty(new FloatProperty("Unknown 9", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
+        part.AddProperty(new FloatProperty("Part Duration", LoadBytes<float, FloatLoader>(bytes, ref index), FloatProperty.FloatType.Float, "..."));
 
         _value = part;
     }
